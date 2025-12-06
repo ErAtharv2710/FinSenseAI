@@ -8,7 +8,7 @@ import json
 # Load environment variables
 load_dotenv()
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_key')
 
 
@@ -139,5 +139,5 @@ def index():
     """Serves the main SPA shell."""
     return render_template('index.html')
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     app.run(debug=True, port=5000)
