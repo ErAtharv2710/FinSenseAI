@@ -1,127 +1,103 @@
 const auth = {
+    user: null,
+
     init() {
-        // Check Persistence
-        const user = localStorage.getItem('authUser');
-        if (user) {
-            console.log('User restored:', JSON.parse(user));
-            if (location.hash === '' || location.hash === '#welcomeScreen' || location.hash === '#authScreen') {
-                router.goToScreen('dashboardScreen');
+        authObj.onAuthStateChanged(user => {
+            if (user) {
+                this.user = user;
+                this.updateUI(user);
+                // Hide auth, show dashboard
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('navbar').classList.remove('hidden');
+                document.getElementById('sidebar').classList.remove('hidden');
+
+                // If we are on auth screen, go to dashboard
+                if (!location.hash || location.hash === '#authScreen') {
+                    router.goToScreen('dashboardScreen');
+                }
+            } else {
+                this.user = null;
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('navbar').classList.add('hidden');
+                document.getElementById('sidebar').classList.add('hidden');
             }
-            const stats = utils.getUserStats();
-            utils.updateUI(stats);
-        }
+        });
     },
 
-    openSignInForm() {
-        router.goToScreen('authScreen');
-        this.switchTab('signin');
-    },
+    updateUI(user) {
+        document.getElementById('nav-username').textContent = user.displayName || 'User';
+        document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=00C853&color=fff`;
 
-    openCreateAccountForm() {
-        router.goToScreen('authScreen');
-        this.switchTab('signup');
+        // Profile Screen Updates
+        document.getElementById('prof-display-name').textContent = user.displayName || 'User';
+        document.getElementById('prof-email').textContent = user.email;
+        document.getElementById('prof-avatar').src = `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=00C853&color=fff`;
     },
 
     switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.auth-form').forEach(f => {
-            f.classList.remove('active');
-            f.classList.add('hidden');
-        });
-
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`${tab}Form`).classList.remove('hidden');
-        document.getElementById(`${tab}Form`).classList.add('active');
+
+        if (tab === 'signin') {
+            document.getElementById('signinForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+        } else {
+            document.getElementById('signinForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
     },
 
-    toggleOtpLogin() {
-        document.getElementById('otp-login-row').classList.toggle('hidden');
+    toggleLoginOTP() {
+        const row = document.getElementById('login-otp-row');
+        row.classList.toggle('hidden');
     },
 
-    handleSignIn(e) {
+    async handleSignIn(e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
-        // Mock Auth
-        const user = { email: email, name: email.split('@')[0] };
-        localStorage.setItem('authUser', JSON.stringify(user));
+        const password = document.getElementById('login-password').value;
 
-        if (!localStorage.getItem('userStats')) {
-            utils.saveUserStats({ xp: 0, level: 0, coins: 0 });
-        } else {
-            utils.updateUI(utils.getUserStats());
+        try {
+            await authObj.signInWithEmailAndPassword(email, password);
+            utils.showToast('Welcome back!', 'success');
+        } catch (error) {
+            utils.showToast(error.message, 'error');
         }
-
-        dashboard.loadPersonalizedDashboard();
-        router.goToScreen('dashboardScreen');
     },
 
-    handleSignUp(e) {
+    async handleSignUp(e) {
         e.preventDefault();
         const name = document.getElementById('reg-name').value;
+        const display = document.getElementById('reg-display').value;
         const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const confirm = document.getElementById('reg-confirm').value;
 
-        console.log('Creating Account for:', name);
+        if (password !== confirm) return utils.showToast('Passwords do not match', 'error');
 
-        // 1. Create User Object
-        const user = {
-            email: email,
-            name: name,
-            uid: 'user_' + Math.random().toString(36).substr(2, 9)
-        };
+        try {
+            const cred = await authObj.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: display });
 
-        // 2. Create Firestore Profile with Full Schema
-        const userProfile = {
-            // Basic Info
-            user_id: user.uid,
-            username: name,
-            email: email,
-            created_at: new Date().toISOString(),
-            last_login: new Date().toISOString(),
-            is_active: true,
-            profile_image_url: `https://ui-avatars.com/api/?name=${name}&background=00C853&color=fff`,
-            financial_literacy_level: 'beginner', // beginner/intermediate/advanced
+            // Create Firestore Profile
+            await db.collection('users').doc(cred.user.uid).set({
+                uid: cred.user.uid,
+                username: display,
+                fullName: name,
+                email: email,
+                created_at: new Date().toISOString(),
+                financial_literacy_level: 'beginner',
+                level: 1,
+                xp: 0
+            });
 
-            // Financial Context
-            currency: 'INR',
-            employment_status: 'student', // student/employed/unemployed/self-employed
-            monthly_income: 0,
-            income_frequency: 'monthly',
-            city: 'Unknown', // Requested field
-            risk_tolerance: 'moderate', // conservative/moderate/aggressive
-
-            // App Specific
-            level: 1,
-            xp: 0,
-            net_worth: 0,
-            budget_limit: { food: 5000, entertainment: 2000, savings: 1000 },
-
-            // Sub-collections (simulated as arrays for mock)
-            income_sources: [],
-            expenses: [],
-            savings: [],
-            debts: [],
-            wishlist: [],
-            goals: []
-        };
-
-        // In real Firebase: db.collection('users').doc(user.uid).set(userProfile)
-        console.log('Firestore Profile Created:', userProfile);
-        localStorage.setItem('userProfile', JSON.stringify(userProfile)); // Simulate DB
-
-        // 3. Login
-        localStorage.setItem('authUser', JSON.stringify(user));
-        utils.saveUserStats({ xp: 0, level: 1, coins: 0 });
-
-        dashboard.loadPersonalizedDashboard();
-        router.goToScreen('dashboardScreen');
+            utils.showToast('Account created!', 'success');
+        } catch (error) {
+            utils.showToast(error.message, 'error');
+        }
     },
 
     logout() {
-        localStorage.removeItem('authUser');
-        router.goToScreen('welcomeScreen');
+        authObj.signOut();
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    auth.init();
-});
