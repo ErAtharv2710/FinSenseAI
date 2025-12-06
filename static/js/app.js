@@ -1,3 +1,4 @@
+
 // Navigation & SPA Logic
 function goToSection(sectionId) {
     // Hide all sections

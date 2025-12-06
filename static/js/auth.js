@@ -4,11 +4,9 @@ const auth = {
         const user = localStorage.getItem('authUser');
         if (user) {
             console.log('User restored:', JSON.parse(user));
-            // Auto-redirect if on welcome/auth screen
             if (location.hash === '' || location.hash === '#welcomeScreen' || location.hash === '#authScreen') {
                 router.goToScreen('dashboardScreen');
             }
-            // Load stats
             const stats = utils.getUserStats();
             utils.updateUI(stats);
         }
@@ -42,13 +40,11 @@ const auth = {
 
     handleSignIn(e) {
         e.preventDefault();
-        console.log('Signing in...');
-
+        const email = document.getElementById('login-email').value;
         // Mock Auth
-        const user = { email: 'user@example.com', name: 'Test User' };
+        const user = { email: email, name: email.split('@')[0] };
         localStorage.setItem('authUser', JSON.stringify(user));
 
-        // Initialize Stats if new
         if (!localStorage.getItem('userStats')) {
             utils.saveUserStats({ xp: 0, level: 0, coins: 0 });
         } else {
@@ -61,11 +57,37 @@ const auth = {
 
     handleSignUp(e) {
         e.preventDefault();
-        console.log('Signing up...');
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('reg-email').value;
 
-        const user = { email: 'new@example.com', name: 'New User' };
+        console.log('Creating Account for:', name);
+
+        // 1. Create User Object
+        const user = {
+            email: email,
+            name: name,
+            uid: 'user_' + Math.random().toString(36).substr(2, 9)
+        };
+
+        // 2. Create Firestore Profile (Mocked here, but structure is ready)
+        const userProfile = {
+            username: name,
+            email: email,
+            level: 1,
+            xp: 0,
+            net_worth: 0,
+            budget_limit: { food: 5000, entertainment: 2000, savings: 1000 },
+            spending_log: [],
+            joined_at: new Date().toISOString()
+        };
+
+        // In real Firebase: db.collection('users').doc(user.uid).set(userProfile)
+        console.log('Firestore Profile Created:', userProfile);
+        localStorage.setItem('userProfile', JSON.stringify(userProfile)); // Simulate DB
+
+        // 3. Login
         localStorage.setItem('authUser', JSON.stringify(user));
-        utils.saveUserStats({ xp: 0, level: 0, coins: 0 });
+        utils.saveUserStats({ xp: 0, level: 1, coins: 0 });
 
         dashboard.loadPersonalizedDashboard();
         router.goToScreen('dashboardScreen');
@@ -77,7 +99,6 @@ const auth = {
     }
 };
 
-// Init Auth on Load
 document.addEventListener('DOMContentLoaded', () => {
     auth.init();
 });

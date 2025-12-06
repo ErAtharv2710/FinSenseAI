@@ -2,24 +2,39 @@ const arena = {
     currentRoom: null,
 
     createRoom() {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-        console.log(`Creating room: ${code}`);
+        // Generate Token
+        const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const user = JSON.parse(localStorage.getItem('authUser'));
 
-        // Mock Firebase Room Creation
-        // In real app: firestore.collection('rooms').doc(code).set({...})
+        console.log(`Creating room with token: ${token}`);
 
-        this.currentRoom = { code, players: [JSON.parse(localStorage.getItem('authUser')).name] };
+        // Mock Firestore Room Creation
+        // db.collection('rooms').doc(token).set({ host: user.name, players: [user.name], status: 'waiting' })
+
+        this.currentRoom = {
+            token: token,
+            host: user.name,
+            players: [user.name]
+        };
         this.renderRoom();
     },
 
     joinRoom() {
-        const codeInput = document.getElementById('arena-code-input');
-        const code = codeInput.value.trim().toUpperCase();
-        if (!code) return alert('Please enter a room code');
+        const tokenInput = document.getElementById('arena-token-input');
+        const token = tokenInput.value.trim().toUpperCase();
+        if (!token) return alert('Please enter a room token');
 
-        console.log(`Joining room: ${code}`);
-        // Mock Join
-        this.currentRoom = { code, players: ['Host', JSON.parse(localStorage.getItem('authUser')).name] };
+        const user = JSON.parse(localStorage.getItem('authUser'));
+        console.log(`Joining room: ${token}`);
+
+        // Mock Join Logic
+        // In real app: Check if doc(token) exists, then update players array
+
+        this.currentRoom = {
+            token: token,
+            host: 'Friend',
+            players: ['Friend', user.name]
+        };
         this.renderRoom();
     },
 
@@ -27,17 +42,22 @@ const arena = {
         const container = document.getElementById('arena-content');
         container.innerHTML = `
             <div class="text-center">
-                <h3>Room Code: <span class="text-accent">${this.currentRoom.code}</span></h3>
-                <p class="text-muted">Share this code with your friends!</p>
+                <h3>Room Token: <span class="text-accent" style="font-size: 2rem; letter-spacing: 2px;">${this.currentRoom.token}</span></h3>
+                <p class="text-muted">Share this token with your friend to join!</p>
                 
                 <div class="mt-4">
-                    <h4>Players</h4>
-                    <div class="player-list">
-                        ${this.currentRoom.players.map(p => `<div class="player-tag"><i class="fas fa-user"></i> ${p}</div>`).join('')}
+                    <h4>Players in Lobby</h4>
+                    <div class="player-list" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                        ${this.currentRoom.players.map(p => `
+                            <div class="player-tag" style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">
+                                <i class="fas fa-user"></i> ${p}
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
 
                 <div class="mt-4">
+                    <button class="btn btn-primary" onclick="alert('Starting Game...')">Start Game</button>
                     <button class="btn btn-danger" onclick="arena.leaveRoom()">Leave Room</button>
                 </div>
             </div>
@@ -50,8 +70,8 @@ const arena = {
         document.getElementById('arena-content').innerHTML = `
             <div class="card mt-4">
                 <h3>Create or Join Room</h3>
-                <div class="form-row">
-                    <input type="text" id="arena-code-input" placeholder="Room Code">
+                <div class="form-row" style="display: flex; gap: 1rem; justify-content: center;">
+                    <input type="text" id="arena-token-input" placeholder="Enter Token" style="padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: white;">
                     <button class="btn btn-primary" onclick="arena.joinRoom()">Join</button>
                     <button class="btn btn-outline" onclick="arena.createRoom()">Create New</button>
                 </div>
