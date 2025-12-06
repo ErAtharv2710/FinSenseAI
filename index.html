@@ -1,26 +1,270 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>FinSenseAI Coach POC</title>
-    <style>
-        /* Basic CSS for clarity */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
-        #chat-history { flex-grow: 1; resize: none; padding: 10px; margin: 10px; border: 1px solid #ccc; }
-        #input-container { display: flex; padding: 10px; border-top: 1px solid #ccc; }
-        #user-input { flex-grow: 1; padding: 10px; }
-        #send-button { padding: 10px 20px; }
-    </style>
-</head>
-<body>
-    <h1>FinSenseAI Proof-OF-CONCEPT</h1>
-    <textarea id="chat-history" readonly></textarea>
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>FinSenseAI Coach POC</title>-->
+<!--    <style>-->
+<!--        /* Basic CSS for clarity */-->
+<!--        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }-->
+<!--        #chat-history { flex-grow: 1; resize: none; padding: 10px; margin: 10px; border: 1px solid #ccc; }-->
+<!--        #input-container { display: flex; padding: 10px; border-top: 1px solid #ccc; }-->
+<!--        #user-input { flex-grow: 1; padding: 10px; }-->
+<!--        #send-button { padding: 10px 20px; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>FinSenseAI Proof-OF-CONCEPT</h1>-->
+<!--    <textarea id="chat-history" readonly></textarea>-->
 
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Ask Finny about finance...">
-        <button id="send-button">SEND</button>
+<!--    <div id="input-container">-->
+<!--        <input type="text" id="user-input" placeholder="Ask Finny about finance...">-->
+<!--        <button id="send-button">SEND</button>-->
+<!--    </div>-->
+
+<!--    <script src="render.js"></script>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FinSenseAI – Professional UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --sidebar-bg: #1f1f23;
+        --sidebar-item: #2a2a2f;
+        --sidebar-hover: #34343a;
+        --main-bg: #fafafa;
+        --bot-bg: #ffffff;
+        --user-bg: #2563eb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        display: flex;
+        height: 100vh;
+        font-family: 'Inter', sans-serif;
+        background: var(--main-bg);
+    }
+
+    /* ================= SIDEBAR ================= */
+    #sidebar {
+        width: 240px;
+        background: var(--sidebar-bg);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        color: white;
+        border-right: 1px solid #2a2a2f;
+    }
+
+    #new-chat {
+        padding: 10px 12px;
+        border: 1px solid #3a3a41;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 20px;
+        background: var(--sidebar-item);
+        transition: 0.2s;
+    }
+
+    #new-chat:hover {
+        background: var(--sidebar-hover);
+    }
+
+    #recent-title {
+        font-size: 13px;
+        opacity: 0.7;
+        margin-bottom: 10px;
+    }
+
+    .history-item {
+        padding: 10px;
+        background: var(--sidebar-item);
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: background 0.2s;
+    }
+
+    .history-item:hover {
+        background: var(--sidebar-hover);
+    }
+
+    /* ================= MAIN AREA ================= */
+    #main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* TOP BAR */
+    #topbar {
+        height: 60px;
+        background: white;
+        border-bottom: 1px solid #e3e3e3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    #topbar h1 {
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    #profile {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #d6d6d6;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #profile:hover {
+        opacity: 0.8;
+    }
+
+    /* MESSAGE PANEL */
+    #messages {
+        flex-grow: 1;
+        padding: 25px;
+        overflow-y: auto;
+    }
+
+    .msg {
+        padding: 10px 14px;
+        border-radius: 10px;
+        max-width: 48%;
+        margin-bottom: 12px;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .bot {
+        background: var(--bot-bg);
+        border: 1px solid #e3e3e3;
+        align-self: flex-start;
+    }
+
+    .user {
+        background: var(--user-bg);
+        color: white;
+        align-self: flex-end;
+    }
+
+    /* INPUT BAR */
+    #input-area {
+        background: white;
+        padding: 15px;
+        border-top: 1px solid #e3e3e3;
+        display: flex;
+        gap: 10px;
+    }
+
+    #user-input {
+        flex-grow: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        font-size: 14px;
+    }
+
+    #send-btn {
+        padding: 12px 20px;
+        background: var(--user-bg);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #send-btn:hover {
+        background: #1d4ed8;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<div id="sidebar">
+    <div id="new-chat">+ New Chat</div>
+
+    <div id="recent-title">Recent Conversations</div>
+
+    <div class="history-item">How to start SIP?</div>
+    <div class="history-item">Best saving tips</div>
+    <div class="history-item">Improve CIBIL score</div>
+    <div class="history-item">Mutual fund basics</div>
+</div>
+
+<!-- ================= MAIN AREA ================= -->
+<div id="main">
+
+    <!-- TOP BAR -->
+    <div id="topbar">
+        <h1>FinSenseAI Coach</h1>
+        <div id="profile"></div>
     </div>
 
-    <script src="render.js"></script>
+    <!-- MESSAGES -->
+    <div id="messages">
+        <div class="msg bot">Hello! I’m Finny, your financial AI coach. Ask me anything!</div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Ask Finny something...">
+        <button id="send-btn">Send</button>
+    </div>
+
+</div>
+
+<script>
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    sendBtn.onclick = () => {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // User Message
+        const userMsg = document.createElement("div");
+        userMsg.className = "msg user";
+        userMsg.textContent = text;
+        messages.appendChild(userMsg);
+
+        messages.scrollTop = messages.scrollHeight;
+        input.value = "";
+
+        // Bot Response
+        setTimeout(() => {
+            const botMsg = document.createElement("div");
+            botMsg.className = "msg bot";
+            botMsg.textContent = "Let me think... (connect backend API here)";
+            messages.appendChild(botMsg);
+
+            messages.scrollTop = messages.scrollHeight;
+        }, 600);
+    };
+</script>
+
 </body>
 </html>
