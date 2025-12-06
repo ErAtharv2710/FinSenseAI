@@ -7,399 +7,498 @@
     <title>FinSense - Master Your Money</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar hidden" id="mainNavbar">
-        <div class="nav-brand">
-            <i class="fas fa-wallet text-primary"></i> FinSense
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">
+            <i class="fas fa-wallet text-primary"></i> FinSenseAI
         </div>
-        <div class="nav-center">
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search Academy, Quests...">
-            </div>
+        <div class="nav-search">
+            <input type="text" class="form-control" placeholder="Search topics, quests...">
         </div>
-        <div class="nav-right">
-            <div class="xp-pill">
-                <i class="fas fa-bolt text-accent"></i> <span id="nav-xp">1200 XP</span>
-            </div>
-            <div class="user-profile" onclick="router.goToScreen('profileScreen')">
-                <img src="https://ui-avatars.com/api/?name=User&background=00C853&color=fff" id="nav-avatar">
+        <div class="nav-actions flex-center" style="gap: 1rem;">
+            <div class="user-profile flex-center" style="gap: 0.5rem; cursor: pointer;" onclick="openUserProfile()">
+                <img src="https://ui-avatars.com/api/?name=User&background=00C853&color=fff" id="nav-avatar"
+                    style="width: 32px; height: 32px; border-radius: 50%;">
+                <span class="hidden-mobile" id="nav-username">User</span>
+                <i class="fas fa-chevron-down text-muted" style="font-size: 0.8rem;"></i>
             </div>
         </div>
     </nav>
 
     <!-- Sidebar -->
-    <aside class="sidebar hidden" id="mainSidebar">
-        <button class="nav-item active" onclick="router.goToScreen('dashboardScreen')">
+    <aside class="sidebar" id="sidebar">
+        <div class="nav-item active" onclick="goToSection('dashboardScreen')">
             <i class="fas fa-home"></i> <span>Dashboard</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('academyScreen')">
-            <i class="fas fa-graduation-cap"></i> <span>Academy</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('arcadeScreen')">
-            <i class="fas fa-gamepad"></i> <span>Arcade</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('coachScreen')">
-            <i class="fas fa-robot"></i> <span>Coach</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('arenaScreen')">
-            <i class="fas fa-users"></i> <span>Arena</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('hallOfFameScreen')">
+        </div>
+        <div class="nav-item" onclick="goToSection('academyScreen')">
+            <i class="fas fa-graduation-cap"></i> <span>Learning Academy</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('questsScreen')">
+            <i class="fas fa-scroll"></i> <span>Daily Quests</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('arcadeScreen')">
+            <i class="fas fa-gamepad"></i> <span>Arcade Games</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('marketScreen')">
+            <i class="fas fa-chart-line"></i> <span>Market Lab</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('coachScreen')">
+            <i class="fas fa-robot"></i> <span>FinSense Coach</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('arenaScreen')">
+            <i class="fas fa-users"></i> <span>Team Arena</span>
+        </div>
+        <div class="nav-item" onclick="goToSection('hallOfFameScreen')">
             <i class="fas fa-trophy"></i> <span>Hall of Fame</span>
-        </button>
-        <button class="nav-item" onclick="router.goToScreen('settingsScreen')">
+        </div>
+        <div class="nav-item" onclick="goToSection('settingsScreen')">
             <i class="fas fa-cog"></i> <span>Settings</span>
-        </button>
+        </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="app-container">
+    <!-- Main Content Area -->
+    <main class="main-content">
 
-        <!-- Welcome Screen -->
-        <section id="welcomeScreen" class="screen active">
-            <div class="hero-content">
-                <div class="logo-large">
-                    <i class="fas fa-wallet"></i>
-                    <h1>FinSense</h1>
+        <!-- Auth Screen (Default) -->
+        <section id="authScreen" class="screen">
+            <div class="auth-container card">
+                <div class="text-center mb-4">
+                    <h2><i class="fas fa-wallet text-primary"></i> FinSense</h2>
+                    <p class="text-muted">Master Your Money, Master Your Life</p>
                 </div>
-                <p class="hero-text">"The sooner we start, the better it is for our financial future."</p>
-                <div class="hero-actions">
-                    <button class="btn btn-primary btn-lg" onclick="auth.openSignInForm()">Sign In</button>
-                    <button class="btn btn-outline btn-lg" onclick="auth.openCreateAccountForm()">Create
-                        Account</button>
-                </div>
-            </div>
-        </section>
 
-        <!-- Auth Screen -->
-        <section id="authScreen" class="screen hidden">
-            <div class="auth-wrapper">
-                <button class="back-btn" onclick="router.goBack()"><i class="fas fa-arrow-left"></i> Back</button>
-                <div class="card auth-card">
-                    <div class="auth-tabs">
-                        <button class="tab-btn active" id="tab-signin" onclick="auth.switchTab('signin')">Sign
-                            In</button>
-                        <button class="tab-btn" id="tab-signup" onclick="auth.switchTab('signup')">Create
-                            Account</button>
+                <div class="auth-tabs">
+                    <div class="auth-tab active" id="tab-signin" onclick="auth.switchTab('signin')">Sign In</div>
+                    <div class="auth-tab" id="tab-signup" onclick="auth.switchTab('signup')">Create Account</div>
+                </div>
+
+                <!-- Sign In Form -->
+                <form id="signinForm" onsubmit="auth.handleSignIn(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" placeholder="Enter your email"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Min 8 chars"
+                            required>
                     </div>
 
-                    <form id="signinForm" class="auth-form active" onsubmit="auth.handleSignIn(event)">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="login-email" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="login-password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                        <button type="button" class="btn btn-text btn-block mt-2" onclick="auth.toggleOtpLogin()">Sign
-                            In with Email Code (OTP)</button>
+                    <!-- OTP Row (Hidden) -->
+                    <div id="login-otp-row" class="form-group hidden">
+                        <label class="form-label">6-Digit OTP</label>
+                        <input type="text" class="form-control" placeholder="123456">
+                    </div>
 
-                        <div id="otp-login-row" class="hidden mt-4">
-                            <div class="form-group">
-                                <label>6-digit Code</label>
-                                <input type="text" placeholder="123456" class="input-otp">
-                            </div>
-                            <button type="button" class="btn btn-primary btn-block"
-                                onclick="auth.handleSignIn(event)">Verify & Login</button>
-                        </div>
-                    </form>
+                    <div class="form-group">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                            <input type="checkbox"> Remember this device <a href="#"
+                                style="margin-left: auto; color: var(--primary);">Forgot password?</a>
+                        </label>
+                    </div>
 
-                    <form id="signupForm" class="auth-form hidden" onsubmit="auth.handleSignUp(event)">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="reg-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="reg-email" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="reg-pass" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                    </form>
-                </div>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Sign In</button>
+                    <button type="button" class="btn btn-outline w-100" onclick="auth.toggleLoginOTP()">Sign In with
+                        Email OTP</button>
+
+                    <p class="text-muted text-center mt-4" style="font-size: 0.8rem;">
+                        <i class="fas fa-shield-alt"></i> We never ask for bank PIN, card number, or CVV.
+                    </p>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" class="hidden" onsubmit="auth.handleSignUp(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="reg-name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-control" id="reg-display" placeholder="Nickname for leaderboard"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="reg-email" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" id="reg-mobile" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="reg-password" placeholder="Min 8 chars"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="reg-confirm" placeholder="Re-enter password"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                            <input type="checkbox" required> I agree to Terms and Privacy Policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Create My FinSense Account</button>
+                </form>
             </div>
         </section>
 
         <!-- Dashboard Screen -->
         <section id="dashboardScreen" class="screen hidden">
-            <div class="dashboard-header">
-                <h2 id="dash-welcome">Welcome back!</h2>
-                <div class="level-ring">
-                    <svg viewBox="0 0 36 36" class="circular-chart">
-                        <path class="circle-bg"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" stroke-dasharray="75, 100"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <span class="level-num">Lvl 5</span>
+            <h2 class="mb-4">Dashboard</h2>
+            <p class="text-muted mb-4" id="current-date">Today is Saturday, December 6, 2025</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Today's Money Tip -->
+                <div class="card">
+                    <h3><i class="fas fa-lightbulb text-accent"></i> Today's Money Tip</h3>
+                    <p id="dailyAdviceText" class="mt-2 text-muted">"Compound interest is the eighth wonder of the
+                        world. He who understands it, earns it... he who doesn't... pays it." - Albert Einstein</p>
+                </div>
+
+                <!-- Spending Snapshot -->
+                <div class="card">
+                    <h3>Spending Snapshot</h3>
+                    <div class="mt-4">
+                        <div class="mb-2 flex-center" style="justify-content: space-between;">
+                            <span>Needs 50%</span>
+                        </div>
+                        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                            <div style="width: 50%; height: 100%; background: #3B82F6;"></div>
+                        </div>
+
+                        <div class="mb-2 mt-4 flex-center" style="justify-content: space-between;">
+                            <span>Wants 30%</span>
+                        </div>
+                        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                            <div style="width: 30%; height: 100%; background: #F59E0B;"></div>
+                        </div>
+
+                        <div class="mb-2 mt-4 flex-center" style="justify-content: space-between;">
+                            <span>Savings 20%</span>
+                        </div>
+                        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                            <div style="width: 20%; height: 100%; background: #10B981;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid-layout">
-                <div class="card coach-tip-card">
-                    <div class="card-header"><i class="fas fa-robot text-accent"></i> Coach's Tip</div>
-                    <div class="card-body" id="dash-coach-tip">Loading tip...</div>
-                </div>
-
-                <div class="card quest-card">
-                    <div class="card-header"><i class="fas fa-scroll text-primary"></i> Today's Quest</div>
-                    <div class="card-body">
-                        <h4>Budgeting Master</h4>
-                        <p>Complete Lesson 2 of Budgeting 101</p>
-                        <button class="btn btn-sm btn-primary mt-2"
-                            onclick="router.goToScreen('academyScreen')">Go</button>
+            <!-- Quest Progress -->
+            <div class="card mt-4">
+                <h3>Quest Progress</h3>
+                <div class="mt-2">
+                    <p><strong>Current: Budget Master</strong></p>
+                    <p class="text-muted text-sm">75% Complete</p>
+                    <div
+                        style="height: 8px; background: #334155; border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
+                        <div style="width: 75%; height: 100%; background: var(--primary);"></div>
                     </div>
-                </div>
-
-                <div class="card snapshot-card">
-                    <div class="card-header">Spending Snapshot</div>
-                    <div class="snapshot-bar">
-                        <div class="seg needs" style="width: 50%"></div>
-                        <div class="seg wants" style="width: 30%"></div>
-                        <div class="seg savings" style="width: 20%"></div>
-                    </div>
-                    <div class="snapshot-legend">
-                        <span><span class="dot needs"></span> Needs</span>
-                        <span><span class="dot wants"></span> Wants</span>
-                        <span><span class="dot savings"></span> Savings</span>
-                    </div>
+                    <p class="mt-2 text-muted"><strong>Next Step:</strong> Review your weekly expenses in the Academy.
+                    </p>
                 </div>
             </div>
         </section>
 
         <!-- Academy Screen -->
         <section id="academyScreen" class="screen hidden">
-            <div class="split-layout">
-                <div class="list-panel">
-                    <h3>Tracks</h3>
-                    <div class="track-card active" onclick="academy.selectTrack('budgeting')">
-                        <h4>Budgeting 101</h4>
-                        <div class="progress-mini">
-                            <div class="fill" style="width: 40%"></div>
-                        </div>
-                    </div>
-                    <div class="track-card" onclick="academy.selectTrack('credit')">
-                        <h4>Credit Scores</h4>
-                        <div class="progress-mini">
-                            <div class="fill" style="width: 10%"></div>
-                        </div>
-                    </div>
-                    <div class="track-card" onclick="academy.selectTrack('investing')">
-                        <h4>Investing Basics</h4>
-                        <div class="progress-mini">
-                            <div class="fill" style="width: 0%"></div>
-                        </div>
+            <h2 class="mb-4">Learning Academy</h2>
+            <div class="card">
+                <div class="track-list" id="academy-tracks">
+                    <!-- Injected via JS -->
+                </div>
+                <div id="lesson-detail" class="mt-4 hidden">
+                    <h3 id="lesson-title">Lesson Title</h3>
+                    <p id="lesson-content" class="text-muted mt-2">Lesson content goes here...</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary">Start Lesson</button>
+                        <button class="btn btn-outline">Take Quiz</button>
                     </div>
                 </div>
-                <div class="content-panel" id="academy-content">
-                    <h2 id="track-title">Budgeting 101</h2>
-                    <div class="action-row">
-                        <button class="btn btn-primary" onclick="academy.startLesson()">Start Lesson</button>
-                        <button class="btn btn-outline" onclick="academy.startQuiz()">Start Quiz</button>
-                    </div>
+            </div>
+        </section>
 
-                    <!-- Quiz Container -->
-                    <div id="quiz-area" class="quiz-container hidden">
-                        <div class="quiz-header">
-                            <span class="text-accent">Question 1/5</span>
-                        </div>
-                        <p class="quiz-question" id="quiz-q-text">Loading...</p>
-                        <div class="quiz-options" id="quiz-options">
-                            <!-- Options injected here -->
-                        </div>
-                        <button class="btn btn-primary mt-4 hidden" id="quiz-next-btn">Next Question</button>
-                    </div>
-
-                    <div class="todo-list mt-4">
-                        <h4>Daily Money To-Do</h4>
-                        <div class="todo-item">
-                            <input type="checkbox" id="todo1">
-                            <label for="todo1">Track yesterday's expenses</label>
-                        </div>
-                    </div>
+        <!-- Daily Quests Screen -->
+        <section id="questsScreen" class="screen hidden">
+            <h2 class="mb-4">Daily Quests</h2>
+            <div id="quest-list">
+                <div class="card">
+                    <h3><i class="fas fa-calendar-check"></i> Login Streak</h3>
+                    <p class="text-muted">Log in for 3 consecutive days.</p>
+                    <p class="text-accent mt-2">Easy +50 XP</p>
+                    <button class="btn btn-primary mt-2">Begin Quest</button>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-piggy-bank"></i> Super Saver</h3>
+                    <p class="text-muted">Save 20% of your income in simulation.</p>
+                    <p class="text-accent mt-2">Medium +100 XP</p>
+                    <button class="btn btn-primary mt-2">Begin Quest</button>
                 </div>
             </div>
         </section>
 
         <!-- Arcade Screen -->
         <section id="arcadeScreen" class="screen hidden">
-            <h2>Arcade</h2>
-            <div class="arcade-grid">
-                <div class="card game-card">
-                    <div class="game-thumb" style="background: linear-gradient(45deg, #EF4444, #B91C1C);">
-                        <i class="fas fa-coins fa-2x"></i>
-                    </div>
-                    <h3>Savings Sprint</h3>
-                    <p class="text-muted text-sm">Collect coins and avoid impulse buys!</p>
-                    <button class="btn btn-primary" onclick="arcade.playGame('sprint')">Play Now</button>
+            <h2 class="mb-4">Arcade Games</h2>
+            <div class="card mb-4">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Bill Splitter Run</h3>
+                    <div
+                        style="background: #EF4444; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                        BS</div>
                 </div>
-                <div class="card game-card">
-                    <div class="game-thumb" style="background: linear-gradient(45deg, #3B82F6, #1D4ED8);">
-                        <i class="fas fa-file-invoice-dollar fa-2x"></i>
-                    </div>
-                    <h3>Bill Splitter</h3>
-                    <p class="text-muted text-sm">Sort expenses into the right buckets.</p>
-                    <button class="btn btn-primary" onclick="arcade.playGame('split')">Play Now</button>
-                </div>
+                <button class="btn btn-primary mt-4">Play</button>
             </div>
-            <div id="game-container" class="hidden">
-                <canvas id="gameCanvas" width="800" height="400"></canvas>
-                <button class="btn btn-danger mt-4" onclick="arcade.closeGame()">Exit Game</button>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Savings Sprint</h3>
+                    <div
+                        style="background: #3B82F6; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                        SS</div>
+                </div>
+                <button class="btn btn-primary mt-4" onclick="arcade.startSavingsSprint()">Play</button>
+                <canvas id="gameCanvas" width="800" height="400" class="hidden mt-4"
+                    style="background: #000; width: 100%; border-radius: 8px;"></canvas>
+            </div>
+        </section>
+
+        <!-- Market Lab Screen -->
+        <section id="marketScreen" class="screen hidden">
+            <h2 class="mb-4">Market Lab</h2>
+            <div class="card">
+                <div class="form-group">
+                    <label class="form-label">Instrument</label>
+                    <select class="form-control">
+                        <option>TechCorp (TCP)</option>
+                        <option>GreenEnergy (GE)</option>
+                        <option>SafeBonds (SB)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Investment Amount</label>
+                    <input type="number" class="form-control" value="100">
+                </div>
+                <div class="flex-center" style="gap: 1rem; justify-content: flex-start;">
+                    <button class="btn btn-primary">Simulate Outcome</button>
+                    <button class="btn btn-outline">Reset</button>
+                </div>
+                <div class="mt-4 p-4" style="background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <h4>Simulation Result</h4>
+                    <p class="text-muted">Run simulation to see potential returns.</p>
+                </div>
             </div>
         </section>
 
         <!-- Coach Screen -->
         <section id="coachScreen" class="screen hidden">
-            <div class="coach-layout">
-                <div class="chat-window" id="chat-window">
-                    <div class="msg coach-msg">Hello! I'm your FinSense Coach. Ask me anything!</div>
+            <h2 class="mb-4">FinSense Coach</h2>
+            <div class="card" style="height: 70vh; display: flex; flex-direction: column;">
+                <div class="flex-center mb-4" style="justify-content: space-between;">
+                    <select class="form-control" style="width: 200px;">
+                        <option>Quick Question</option>
+                        <option>Explain this concept</option>
+                        <option>Review my week</option>
+                    </select>
                 </div>
-                <div class="chat-controls">
-                    <div class="mode-select">
-                        <button class="mode-btn active" onclick="coach.setMode('quick')">Quick Question</button>
-                        <button class="mode-btn" onclick="coach.setMode('explain')">Explain Concept</button>
+
+                <div id="chat-history" style="flex: 1; overflow-y: auto; padding-right: 0.5rem;">
+                    <div class="mb-4"
+                        style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; max-width: 80%;">
+                        <p>Hello! I'm your AI financial coach. How can I help you today?</p>
                     </div>
-                    <div class="input-row">
-                        <input type="text" id="coach-input" placeholder="Type your question...">
-                        <button class="btn btn-primary" onclick="coach.sendMessage()">Send</button>
-                    </div>
+                </div>
+
+                <div class="mt-4" style="display: flex; gap: 1rem;">
+                    <input type="text" class="form-control" id="coach-input" placeholder="Type your question...">
+                    <button class="btn btn-primary" onclick="coach.sendMessage()">Ask Coach</button>
+                </div>
+                <div class="mt-2 flex-center" style="gap: 0.5rem; justify-content: flex-start;">
+                    <button class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Explain My Last
+                        Game</button>
                 </div>
             </div>
         </section>
 
         <!-- Arena Screen -->
         <section id="arenaScreen" class="screen hidden">
-            <h2>Team Arena</h2>
-            <div class="arena-tabs">
-                <button class="tab-btn active">Play Together</button>
-                <button class="tab-btn">Face a Friend</button>
+            <h2 class="mb-4">Team Arena</h2>
+            <div class="auth-tabs mb-4">
+                <div class="auth-tab active">Play Together</div>
+                <div class="auth-tab">Face a Friend</div>
             </div>
-            <div id="arena-content">
-                <div class="card mt-4">
-                    <h3>Create or Join Room</h3>
-                    <div class="form-row" style="display: flex; gap: 1rem; justify-content: center;">
-                        <input type="text" id="arena-token-input" placeholder="Enter Token"
-                            style="padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: white;">
-                        <button class="btn btn-primary" onclick="arena.joinRoom()">Join</button>
-                        <button class="btn btn-outline" onclick="arena.createRoom()">Create New</button>
+            <div class="card">
+                <div class="flex-center" style="gap: 1rem; flex-wrap: wrap;">
+                    <input type="text" class="form-control" id="room-code" placeholder="Enter Room Code"
+                        style="width: 200px;">
+                    <button class="btn btn-primary" onclick="arena.joinRoom()">Join Room</button>
+                    <button class="btn btn-outline" onclick="arena.createRoom()">Create New Room</button>
+                </div>
+
+                <div id="arena-lobby" class="mt-4 hidden">
+                    <h4>Team Savings Goal</h4>
+                    <div
+                        style="height: 10px; background: #334155; border-radius: 5px; margin: 1rem 0; overflow: hidden;">
+                        <div style="width: 40%; height: 100%; background: var(--accent);"></div>
                     </div>
+                    <ul id="player-list" class="text-muted"></ul>
                 </div>
             </div>
         </section>
 
-        <!-- Hall of Fame Screen -->
+        <!-- Hall of Fame -->
         <section id="hallOfFameScreen" class="screen hidden">
-            <h2>Hall of Fame</h2>
+            <h2 class="mb-4">Hall of Fame</h2>
             <div class="card">
-                <table class="leaderboard">
+                <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Player</th>
-                            <th>XP</th>
-                            <th>City</th>
+                        <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                            <th class="p-2">Rank</th>
+                            <th class="p-2">Player</th>
+                            <th class="p-2">XP</th>
+                            <th class="p-2">TrustScore</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><span class="rank-1">1</span></td>
-                            <td>
-                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
-                                        src="https://ui-avatars.com/api/?name=Alpha"
-                                        style="width:30px;border-radius:50%"> AlphaWolf</div>
-                            </td>
-                            <td>1500</td>
-                            <td>NY</td>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="p-2">#1</td>
+                            <td class="p-2">BudgetBoss</td>
+                            <td class="p-2 text-accent">12,500</td>
+                            <td class="p-2">98</td>
                         </tr>
                         <tr>
-                            <td><span class="rank-2">2</span></td>
-                            <td>
-                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
-                                        src="https://ui-avatars.com/api/?name=Beta"
-                                        style="width:30px;border-radius:50%"> BetaBear</div>
-                            </td>
-                            <td>1420</td>
-                            <td>LA</td>
-                        </tr>
-                        <tr>
-                            <td><span class="rank-3">3</span></td>
-                            <td>
-                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
-                                        src="https://ui-avatars.com/api/?name=Gamma"
-                                        style="width:30px;border-radius:50%"> GammaGoat</div>
-                            </td>
-                            <td>1350</td>
-                            <td>TX</td>
+                            <td class="p-2">#2</td>
+                            <td class="p-2">SaverQueen</td>
+                            <td class="p-2 text-accent">11,200</td>
+                            <td class="p-2">95</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Settings Screen -->
-        <section id="settingsScreen" class="screen hidden">
-            <h2>Settings</h2>
-            <div class="card">
-                <div class="setting-item">
-                    <span>Dark Mode</span>
-                    <label class="switch">
-                        <input type="checkbox" id="theme-toggle" onchange="utils.toggleTheme()">
-                        <span class="slider"></span>
-                    </label>
+        <!-- Profile Screen -->
+        <section id="profileScreen" class="screen hidden">
+            <h2 class="mb-4">User Profile</h2>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                <!-- Left Col -->
+                <div class="card text-center">
+                    <img src="https://ui-avatars.com/api/?name=User&background=00C853&color=fff" id="prof-avatar"
+                        style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 1rem;">
+                    <h3 id="prof-display-name">User</h3>
+                    <p class="text-muted" id="prof-email">user@example.com</p>
+                    <div class="mt-4 text-left">
+                        <p class="text-sm text-muted">Age Group: 18-24</p>
+                        <p class="text-sm text-muted">City: New York</p>
+                    </div>
                 </div>
-                <div class="setting-item">
-                    <span>Email Notifications</span>
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
+
+                <!-- Right Col -->
+                <div class="card">
+                    <h3>Edit Profile</h3>
+                    <div class="form-group mt-4">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-control" value="BudgetBoss">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" value="New York">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Age Group</label>
+                        <select class="form-control">
+                            <option>18-24</option>
+                            <option>25-34</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked> Email notifications
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="checkbox" checked> Show my profile on leaderboard
+                        </label>
+                    </div>
+
+                    <div class="flex-center" style="gap: 1rem; justify-content: flex-start; flex-wrap: wrap;">
+                        <button class="btn btn-primary">Save Profile Changes</button>
+                        <button class="btn btn-outline">Change Password</button>
+                        <button class="btn btn-danger" onclick="profile.startDeleteFlow()">Delete My Account</button>
+                    </div>
                 </div>
-                <button class="btn btn-danger mt-4" onclick="profile.deleteAccount()">Delete Account</button>
             </div>
         </section>
 
-        <!-- Profile Screen -->
-        <section id="profileScreen" class="screen hidden">
-            <h2>My Profile</h2>
-            <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+        <!-- Settings Screen -->
+        <section id="settingsScreen" class="screen hidden">
+            <h2 class="mb-4">Settings</h2>
+            <div class="card">
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> Dark Mode
+                    </label>
+                </div>
+                <button class="btn btn-outline">Export My Data</button>
+            </div>
+        </section>
 
-            <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/firebase-setup.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/router.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/academy.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/arcade.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/arena.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/hall-of-fame.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/email.js') }}"></script>
+    </main>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    router.init();
-                    // Check theme
-                    if (localStorage.getItem('theme') === 'light') {
-                        document.body.classList.add('light-mode');
-                        document.getElementById('theme-toggle').checked = false;
-                    } else {
-                        document.getElementById('theme-toggle').checked = true;
-                    }
-                });
-            </script>
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3 class="text-danger mb-4">Delete Account?</h3>
+            <p class="mb-4">This action is irreversible. All your data will be lost.</p>
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control">
+            </div>
+            <div class="flex-center" style="gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-outline" onclick="profile.cancelDelete()">Cancel</button>
+                <button class="btn btn-danger" onclick="profile.confirmDelete()">Yes, delete my account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Modules -->
+    <script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/router.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/academy.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/arcade.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/arena.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+
+    <script>
+        // Global Navigation Helpers (for human-readable access)
+        function goToSection(id) { router.goToScreen(id); }
+        function openUserProfile() { router.goToScreen('profileScreen'); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            router.init();
+            auth.init();
+        });
+    </script>
 </body>
 
 </html>
