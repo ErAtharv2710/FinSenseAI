@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_hackathon_secret_key')
 # --- Initialize Firebase Admin ---
 try:
     # Check if the JSON file exists
-    cred_path = "firebase/service-account.json"
+    cred_path = "gaming/firebase/service-account.json"
     
     if not os.path.exists(cred_path):
         print(f"❌ Firebase credentials not found at: {cred_path}")
