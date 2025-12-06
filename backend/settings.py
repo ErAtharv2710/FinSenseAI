@@ -1,5 +1,19 @@
 # backend/settings.py
 import os
+from pydantic import BaseSettings
+
+class Settings(BaseSettings):
+    GEMINI_API_KEY: str
+    MYSQL_USER: str
+    MYSQL_PASSWORD: str
+    MYSQL_HOST: str
+    MYSQL_DB: str
+    CORS_ORIGINS: list = ["http://localhost:3000", "*"]
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
 
 # --- 1. GEMINI API KEY ---
 # It's safest to load this from an environment variable (set in your terminal)
