@@ -1,0 +1,3 @@
+const email = {
+    // Email logic
+};

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSense - Master Your Money</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar hidden" id="mainNavbar">
+        <div class="nav-brand">
+            <i class="fas fa-wallet text-primary"></i> FinSense
+        </div>
+        <div class="nav-center">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search Academy, Quests...">
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="xp-pill">
+                <i class="fas fa-bolt text-accent"></i> <span id="nav-xp">1200 XP</span>
+            </div>
+            <div class="user-profile" onclick="router.goToScreen('profileScreen')">
+                <img src="https://ui-avatars.com/api/?name=User&background=00C853&color=fff" id="nav-avatar">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar hidden" id="mainSidebar">
+        <button class="nav-item active" onclick="router.goToScreen('dashboardScreen')">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('academyScreen')">
+            <i class="fas fa-graduation-cap"></i> <span>Academy</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('arcadeScreen')">
+            <i class="fas fa-gamepad"></i> <span>Arcade</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('coachScreen')">
+            <i class="fas fa-robot"></i> <span>Coach</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('arenaScreen')">
+            <i class="fas fa-users"></i> <span>Arena</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('hallOfFameScreen')">
+            <i class="fas fa-trophy"></i> <span>Hall of Fame</span>
+        </button>
+        <button class="nav-item" onclick="router.goToScreen('settingsScreen')">
+            <i class="fas fa-cog"></i> <span>Settings</span>
+        </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-container">
+
+        <!-- Welcome Screen -->
+        <section id="welcomeScreen" class="screen active">
+            <div class="hero-content">
+                <div class="logo-large">
+                    <i class="fas fa-wallet"></i>
+                    <h1>FinSense</h1>
+                </div>
+                <p class="hero-text">"The sooner we start, the better it is for our financial future."</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" onclick="auth.openSignInForm()">Sign In</button>
+                    <button class="btn btn-outline btn-lg" onclick="auth.openCreateAccountForm()">Create
+                        Account</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auth Screen -->
+        <section id="authScreen" class="screen hidden">
+            <div class="auth-wrapper">
+                <button class="back-btn" onclick="router.goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                <div class="card auth-card">
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" id="tab-signin" onclick="auth.switchTab('signin')">Sign
+                            In</button>
+                        <button class="tab-btn" id="tab-signup" onclick="auth.switchTab('signup')">Create
+                            Account</button>
+                    </div>
+
+                    <form id="signinForm" class="auth-form active" onsubmit="auth.handleSignIn(event)">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="login-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                        <button type="button" class="btn btn-text btn-block mt-2" onclick="auth.toggleOtpLogin()">Sign
+                            In with Email Code (OTP)</button>
+
+                        <div id="otp-login-row" class="hidden mt-4">
+                            <div class="form-group">
+                                <label>6-digit Code</label>
+                                <input type="text" placeholder="123456" class="input-otp">
+                            </div>
+                            <button type="button" class="btn btn-primary btn-block"
+                                onclick="auth.handleSignIn(event)">Verify & Login</button>
+                        </div>
+                    </form>
+
+                    <form id="signupForm" class="auth-form hidden" onsubmit="auth.handleSignUp(event)">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="reg-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="reg-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="reg-pass" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Screen -->
+        <section id="dashboardScreen" class="screen hidden">
+            <div class="dashboard-header">
+                <h2 id="dash-welcome">Welcome back!</h2>
+                <div class="level-ring">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke-dasharray="75, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <span class="level-num">Lvl 5</span>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <div class="card coach-tip-card">
+                    <div class="card-header"><i class="fas fa-robot text-accent"></i> Coach's Tip</div>
+                    <div class="card-body" id="dash-coach-tip">Loading tip...</div>
+                </div>
+
+                <div class="card quest-card">
+                    <div class="card-header"><i class="fas fa-scroll text-primary"></i> Today's Quest</div>
+                    <div class="card-body">
+                        <h4>Budgeting Master</h4>
+                        <p>Complete Lesson 2 of Budgeting 101</p>
+                        <button class="btn btn-sm btn-primary mt-2"
+                            onclick="router.goToScreen('academyScreen')">Go</button>
+                    </div>
+                </div>
+
+                <div class="card snapshot-card">
+                    <div class="card-header">Spending Snapshot</div>
+                    <div class="snapshot-bar">
+                        <div class="seg needs" style="width: 50%"></div>
+                        <div class="seg wants" style="width: 30%"></div>
+                        <div class="seg savings" style="width: 20%"></div>
+                    </div>
+                    <div class="snapshot-legend">
+                        <span><span class="dot needs"></span> Needs</span>
+                        <span><span class="dot wants"></span> Wants</span>
+                        <span><span class="dot savings"></span> Savings</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Academy Screen -->
+        <section id="academyScreen" class="screen hidden">
+            <div class="split-layout">
+                <div class="list-panel">
+                    <h3>Tracks</h3>
+                    <div class="track-card active" onclick="academy.selectTrack('budgeting')">
+                        <h4>Budgeting 101</h4>
+                        <div class="progress-mini">
+                            <div class="fill" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <div class="track-card" onclick="academy.selectTrack('credit')">
+                        <h4>Credit Scores</h4>
+                        <div class="progress-mini">
+                            <div class="fill" style="width: 10%"></div>
+                        </div>
+                    </div>
+                    <div class="track-card" onclick="academy.selectTrack('investing')">
+                        <h4>Investing Basics</h4>
+                        <div class="progress-mini">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel" id="academy-content">
+                    <h2 id="track-title">Budgeting 101</h2>
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="academy.startLesson()">Start Lesson</button>
+                        <button class="btn btn-outline" onclick="academy.startQuiz()">Start Quiz</button>
+                    </div>
+
+                    <!-- Quiz Container -->
+                    <div id="quiz-area" class="quiz-container hidden">
+                        <div class="quiz-header">
+                            <span class="text-accent">Question 1/5</span>
+                        </div>
+                        <p class="quiz-question" id="quiz-q-text">Loading...</p>
+                        <div class="quiz-options" id="quiz-options">
+                            <!-- Options injected here -->
+                        </div>
+                        <button class="btn btn-primary mt-4 hidden" id="quiz-next-btn">Next Question</button>
+                    </div>
+
+                    <div class="todo-list mt-4">
+                        <h4>Daily Money To-Do</h4>
+                        <div class="todo-item">
+                            <input type="checkbox" id="todo1">
+                            <label for="todo1">Track yesterday's expenses</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arcade Screen -->
+        <section id="arcadeScreen" class="screen hidden">
+            <h2>Arcade</h2>
+            <div class="arcade-grid">
+                <div class="card game-card">
+                    <div class="game-thumb" style="background: linear-gradient(45deg, #EF4444, #B91C1C);">
+                        <i class="fas fa-coins fa-2x"></i>
+                    </div>
+                    <h3>Savings Sprint</h3>
+                    <p class="text-muted text-sm">Collect coins and avoid impulse buys!</p>
+                    <button class="btn btn-primary" onclick="arcade.playGame('sprint')">Play Now</button>
+                </div>
+                <div class="card game-card">
+                    <div class="game-thumb" style="background: linear-gradient(45deg, #3B82F6, #1D4ED8);">
+                        <i class="fas fa-file-invoice-dollar fa-2x"></i>
+                    </div>
+                    <h3>Bill Splitter</h3>
+                    <p class="text-muted text-sm">Sort expenses into the right buckets.</p>
+                    <button class="btn btn-primary" onclick="arcade.playGame('split')">Play Now</button>
+                </div>
+            </div>
+            <div id="game-container" class="hidden">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
+                <button class="btn btn-danger mt-4" onclick="arcade.closeGame()">Exit Game</button>
+            </div>
+        </section>
+
+        <!-- Coach Screen -->
+        <section id="coachScreen" class="screen hidden">
+            <div class="coach-layout">
+                <div class="chat-window" id="chat-window">
+                    <div class="msg coach-msg">Hello! I'm your FinSense Coach. Ask me anything!</div>
+                </div>
+                <div class="chat-controls">
+                    <div class="mode-select">
+                        <button class="mode-btn active" onclick="coach.setMode('quick')">Quick Question</button>
+                        <button class="mode-btn" onclick="coach.setMode('explain')">Explain Concept</button>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="coach-input" placeholder="Type your question...">
+                        <button class="btn btn-primary" onclick="coach.sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Arena Screen -->
+        <section id="arenaScreen" class="screen hidden">
+            <h2>Team Arena</h2>
+            <div class="arena-tabs">
+                <button class="tab-btn active">Play Together</button>
+                <button class="tab-btn">Face a Friend</button>
+            </div>
+            <div class="card mt-4">
+                <h3>Create or Join Room</h3>
+                <div class="form-row">
+                    <input type="text" placeholder="Room Code">
+                    <button class="btn btn-primary">Join</button>
+                    <button class="btn btn-outline">Create New</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hall of Fame Screen -->
+        <section id="hallOfFameScreen" class="screen hidden">
+            <h2>Hall of Fame</h2>
+            <div class="card">
+                <table class="leaderboard">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>XP</th>
+                            <th>City</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="rank-1">1</span></td>
+                            <td>
+                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
+                                        src="https://ui-avatars.com/api/?name=Alpha"
+                                        style="width:30px;border-radius:50%"> AlphaWolf</div>
+                            </td>
+                            <td>1500</td>
+                            <td>NY</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-2">2</span></td>
+                            <td>
+                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
+                                        src="https://ui-avatars.com/api/?name=Beta"
+                                        style="width:30px;border-radius:50%"> BetaBear</div>
+                            </td>
+                            <td>1420</td>
+                            <td>LA</td>
+                        </tr>
+                        <tr>
+                            <td><span class="rank-3">3</span></td>
+                            <td>
+                                <div class="flex-center" style="justify-content:flex-start; gap:0.5rem"><img
+                                        src="https://ui-avatars.com/api/?name=Gamma"
+                                        style="width:30px;border-radius:50%"> GammaGoat</div>
+                            </td>
+                            <td>1350</td>
+                            <td>TX</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Settings Screen -->
+        <section id="settingsScreen" class="screen hidden">
+            <h2>Settings</h2>
+            <div class="card">
+                <div class="setting-item">
+                    <span>Dark Mode</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle" onchange="utils.toggleTheme()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Email Notifications</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button class="btn btn-danger mt-4" onclick="profile.deleteAccount()">Delete Account</button>
+            </div>
+        </section>
+
+        <!-- Profile Screen -->
+        <section id="profileScreen" class="screen hidden">
+            <h2>My Profile</h2>
+            <div class="card profile-card text-center">
+                <img src="https://ui-avatars.com/api/?name=User" class="profile-avatar-lg"
+                    style="width:100px; height:100px; border-radius:50%; border:4px solid var(--primary); margin-bottom:1rem;">
+                <h3>User Name</h3>
+                <p class="text-muted">Level 5 • 1200 XP</p>
+                <div class="badges-grid mt-4" style="display:flex; justify-content:center; gap:1rem;">
+                    <div class="badge" style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px;"><i
+                            class="fas fa-star text-accent fa-2x"></i></div>
+                    <div class="badge" style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px;"><i
+                            class="fas fa-rocket text-primary fa-2x"></i></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-setup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/router.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/academy.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/arcade.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/arena.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/hall-of-fame.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/email.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            router.init();
+            // Check theme
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-toggle').checked = false;
+            } else {
+                document.getElementById('theme-toggle').checked = true;
+            }
+        });
+    </script>
+</body>
+
+</html>

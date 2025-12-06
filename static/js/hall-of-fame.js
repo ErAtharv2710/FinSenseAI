@@ -1,0 +1,3 @@
+const hallOfFame = {
+    // Leaderboard logic
+};
