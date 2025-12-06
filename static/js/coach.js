@@ -1,39 +1,48 @@
 const coach = {
-    currentMode: 'quick',
-
-    setMode(mode) {
-        this.currentMode = mode;
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-    },
-
-    sendMessage() {
+    async sendMessage() {
         const input = document.getElementById('coach-input');
-        const text = input.value;
-        if (!text) return;
+        const msg = input.value.trim();
+        if (!msg) return;
 
-        const win = document.getElementById('chat-window');
-
-        // User Msg
-        const userDiv = document.createElement('div');
-        userDiv.className = 'msg user-msg';
-        userDiv.textContent = text;
-        win.appendChild(userDiv);
+        // UI Update
+        this.appendMessage(msg, 'user-msg');
         input.value = '';
 
         // API Call
-        fetch('/api/coach/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, mode: this.currentMode })
-        })
-            .then(res => res.json())
-            .then(data => {
-                const botDiv = document.createElement('div');
-                botDiv.className = 'msg coach-msg';
-                botDiv.textContent = data.response;
-                win.appendChild(botDiv);
-                win.scrollTop = win.scrollHeight;
+        try {
+            const res = await fetch('/api/coach/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, mode: 'quick' })
             });
+            const data = await res.json();
+            this.appendMessage(data.response, 'coach-msg');
+        } catch (e) {
+            this.appendMessage("Sorry, I'm having trouble connecting.", 'coach-msg');
+        }
+    },
+
+    appendMessage(text, className) {
+        const history = document.getElementById('chat-history');
+        const div = document.createElement('div');
+        div.className = `msg ${className}`;
+        div.textContent = text;
+        div.style.marginBottom = '1rem';
+        div.style.padding = '0.8rem';
+        div.style.borderRadius = '12px';
+        div.style.maxWidth = '80%';
+
+        if (className === 'user-msg') {
+            div.style.background = 'var(--primary)';
+            div.style.color = '#000';
+            div.style.alignSelf = 'flex-end';
+            div.style.marginLeft = 'auto';
+        } else {
+            div.style.background = 'rgba(255,255,255,0.1)';
+            div.style.color = '#fff';
+        }
+
+        history.appendChild(div);
+        history.scrollTop = history.scrollHeight;
     }
 };

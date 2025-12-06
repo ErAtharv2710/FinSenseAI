@@ -1,16 +1,25 @@
 const router = {
-    historyStack: [],
+    screens: [
+        'authScreen', 'dashboardScreen', 'academyScreen', 'arcadeScreen',
+        'arenaScreen', 'coachScreen', 'profileScreen', 'hallOfFameScreen', 'settingsScreen'
+    ],
 
     init() {
         window.onpopstate = (event) => {
-            if (event.state && event.state.screenId) {
-                this.showScreen(event.state.screenId, false);
-            } else {
-                this.showScreen('welcomeScreen', false);
+            if (event.state && event.state.screen) {
+                this.showScreen(event.state.screen, false);
             }
         };
-        // Default
-        this.showScreen('welcomeScreen', false);
+
+        // Default route
+        if (!location.hash) {
+            this.goToScreen('dashboardScreen');
+        } else {
+            const screen = location.hash.substring(1);
+            if (this.screens.includes(screen)) {
+                this.goToScreen(screen);
+            }
+        }
     },
 
     goToScreen(screenId) {
@@ -19,39 +28,27 @@ const router = {
 
     showScreen(screenId, pushState = true) {
         // Hide all screens
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        this.screens.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
 
-        // Show target
-        const screen = document.getElementById(screenId);
-        if (screen) {
-            screen.classList.remove('hidden');
-            screen.classList.add('active');
+        // Show target screen
+        const target = document.getElementById(screenId);
+        if (target) {
+            target.classList.remove('hidden');
 
-            // Toggle Navbars
-            if (screenId === 'welcomeScreen' || screenId === 'authScreen') {
-                document.getElementById('mainNavbar').classList.add('hidden');
-                document.getElementById('mainSidebar').classList.add('hidden');
-            } else {
-                document.getElementById('mainNavbar').classList.remove('hidden');
-                document.getElementById('mainSidebar').classList.remove('hidden');
-            }
+            // Update Sidebar Active State
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(screenId)) {
+                    item.classList.add('active');
+                }
+            });
 
             if (pushState) {
-                history.pushState({ screenId }, null, `#${screenId}`);
-                this.historyStack.push(screenId);
+                history.pushState({ screen: screenId }, null, `#${screenId}`);
             }
-        }
-    },
-
-    goBack() {
-        if (this.historyStack.length > 1) {
-            this.historyStack.pop();
-            const prev = this.historyStack[this.historyStack.length - 1];
-            this.showScreen(prev, false);
-            history.back();
-        } else {
-            this.goToScreen('welcomeScreen');
         }
     }
 };
