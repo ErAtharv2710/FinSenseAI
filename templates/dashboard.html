@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSense - Financial Literacy for Youth</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+
+    <!-- Authentication Section (Hidden if logged in, but for this hybrid app we assume logged in for dashboard view) -->
+    <!-- In a real app, we'd check 'if not current_user.is_authenticated' -->
+    <section id="auth-section" class="hidden">
+        <!-- Auth content omitted for brevity as we are focusing on the dashboard integration -->
+    </section>
+
+    <!-- Main App Layout -->
+    <div id="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-wallet logo-icon"></i>
+                <span>FinSense</span>
+                <button id="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="nav-user">
+                <div class="user-stats">
+                    <span class="fincoins"><i class="fas fa-coins"></i> <span id="user-coins">{{ net_worth
+                            }}</span></span>
+                    <div class="xp-bar-container">
+                        <span class="xp-label">Lvl {{ level }}</span>
+                        <div class="xp-bar">
+                            <div class="xp-fill" style="width: {{ (xp / 1000) * 100 }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name={{ username }}&background=00C853&color=fff" alt="User"
+                        id="user-avatar">
+                    <span id="user-name">{{ username }}</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <ul class="nav-links">
+                    <li class="active" data-target="dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></li>
+                    <li><a href="{{ url_for('log_expense') }}"
+                            style="text-decoration:none; color:inherit; display:flex; gap:0.75rem;"><i
+                                class="fas fa-plus-circle"></i> <span>Log Expense</span></a></li>
+                    <li data-target="academy"><i class="fas fa-graduation-cap"></i> <span>Academy</span></li>
+                    <li data-target="quest-board"><i class="fas fa-scroll"></i> <span>Quest Board</span></li>
+                    <li data-target="arcade"><i class="fas fa-gamepad"></i> <span>Arcade</span></li>
+                    <li data-target="market-lab"><i class="fas fa-chart-line"></i> <span>Market Lab</span></li>
+                    <li data-target="mentor-hub"><i class="fas fa-robot"></i> <span>Mentor Hub</span></li>
+                    <li data-target="arena"><i class="fas fa-fist-raised"></i> <span>Arena</span></li>
+                    <li data-target="hall-of-fame"><i class="fas fa-trophy"></i> <span>Hall of Fame</span></li>
+                    <li data-target="settings"><i class="fas fa-cog"></i> <span>Settings</span></li>
+                </ul>
+                <div class="sidebar-footer">
+                    <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="hero-card">
+                        <h2>Welcome back, <span id="dash-user-name">{{ username }}</span>!</h2>
+                        <p>Ready to conquer your financial goals today?</p>
+                    </div>
+
+                    {% if nudge %}
+                    <div class="alert alert-{{ nudge.type }}"
+                        style="background-color: rgba(255, 193, 7, 0.2); color: #FFC107; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #FFC107;">
+                        {{ nudge.message }}
+                    </div>
+                    {% endif %}
+
+                    <div class="dashboard-grid">
+                        <div class="card summary-card">
+                            <h3>Today's Quest</h3>
+                            <p>Complete "Budget Basics"</p>
+                            <button class="btn btn-sm btn-primary">Go</button>
+                        </div>
+                        <div class="card summary-card">
+                            <h3>Current Streak</h3>
+                            <div class="streak-display">
+                                <i class="fas fa-fire flame-icon"></i>
+                                <span>5 Days</span>
+                            </div>
+                        </div>
+                        <div class="card summary-card">
+                            <h3>Wallet Overview</h3>
+                            <p>{{ net_worth }} FinCoins</p>
+                            <div class="progress-bar-container">
+                                <label>Food Budget Used</label>
+                                <div class="progress-bar">
+                                    <div class="fill"
+                                        style="width: {{ food_progress }}%; background-color: {% if food_progress > 90 %}#EF4444{% elif food_progress > 50 %}#FFC107{% else %}#10B981{% endif %};">
+                                    </div>
+                                </div>
+                                <small>{{ food_progress|round|int }}% of {{ budget_limit.food }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Academy Section -->
+                <section id="academy" class="content-section">
+                    <h2>Academy</h2>
+                    <div class="academy-layout">
+                        <div class="lesson-list">
+                            <div class="card lesson-card" onclick="selectLesson('Budget Basics')">
+                                <h4>Budget Basics</h4>
+                                <p>Learn how to manage your money.</p>
+                            </div>
+                            <div class="card lesson-card" onclick="selectLesson('Smart Spending')">
+                                <h4>Smart Spending</h4>
+                                <p>Needs vs. Wants.</p>
+                            </div>
+                            <div class="card lesson-card" onclick="selectLesson('Investing 101')">
+                                <h4>Investing 101</h4>
+                                <p>Grow your wealth over time.</p>
+                            </div>
+                        </div>
+                        <div class="lesson-content card">
+                            <h3 id="lesson-title">Select a Lesson</h3>
+                            <p id="lesson-desc">Choose a module from the left to start learning.</p>
+                            <button class="btn btn-primary" id="start-lesson-btn" disabled>Start Lesson</button>
+
+                            <div id="quiz-area" class="hidden">
+                                <hr>
+                                <h4>Quick Quiz</h4>
+                                <p id="quiz-question">What is a budget?</p>
+                                <div class="quiz-options">
+                                    <label><input type="radio" name="quiz" value="1"> A plan for spending money</label>
+                                    <label><input type="radio" name="quiz" value="2"> A type of bank account</label>
+                                    <label><input type="radio" name="quiz" value="3"> A free gift</label>
+                                    <label><input type="radio" name="quiz" value="4"> None of the above</label>
+                                </div>
+                                <button class="btn btn-accent" id="submit-quiz-btn">Submit Answer</button>
+                                <p id="quiz-feedback" class="feedback-msg"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quest Board Section -->
+                <section id="quest-board" class="content-section">
+                    <h2>Quest Board</h2>
+                    <div class="quest-grid">
+                        <div class="card quest-card">
+                            <div class="quest-header">
+                                <h4>Daily Login</h4>
+                                <span class="badge badge-easy">Easy</span>
+                            </div>
+                            <p>Log in to FinSense today.</p>
+                            <p class="reward-text">+10 FinCoins, +5 XP</p>
+                            <button class="btn btn-outline btn-sm" onclick="startQuest('Daily Login')">Start
+                                Quest</button>
+                        </div>
+                        <div class="card quest-card">
+                            <div class="quest-header">
+                                <h4>Save 10%</h4>
+                                <span class="badge badge-medium">Medium</span>
+                            </div>
+                            <p>Save 10% of your virtual income.</p>
+                            <p class="reward-text">+50 FinCoins, +20 XP</p>
+                            <button class="btn btn-outline btn-sm" onclick="startQuest('Save 10%')">Start Quest</button>
+                        </div>
+                        <div class="card quest-card">
+                            <div class="quest-header">
+                                <h4>Investment Guru</h4>
+                                <span class="badge badge-hard">Hard</span>
+                            </div>
+                            <p>Make a profit in Market Lab.</p>
+                            <p class="reward-text">+100 FinCoins, +50 XP</p>
+                            <button class="btn btn-outline btn-sm" onclick="startQuest('Investment Guru')">Start
+                                Quest</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Arcade Section -->
+                <section id="arcade" class="content-section">
+                    <h2>Arcade</h2>
+                    <div class="arcade-grid">
+                        <div class="card game-card">
+                            <h3>Bill Splitter Rush</h3>
+                            <p>Split bills accurately under pressure!</p>
+                            <button class="btn btn-primary" onclick="playGame('Bill Splitter Rush')">Play Demo</button>
+                        </div>
+                        <div class="card game-card">
+                            <h3>Savings Sprint</h3>
+                            <p>Race to reach your savings goal.</p>
+                            <button class="btn btn-primary" onclick="playGame('Savings Sprint')">Play Demo</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Market Lab Section -->
+                <section id="market-lab" class="content-section">
+                    <h2>Market Lab</h2>
+                    <div class="market-layout">
+                        <div class="card market-controls">
+                            <h3>Trade Simulator</h3>
+                            <div class="form-group">
+                                <label>Select Asset</label>
+                                <select id="market-asset">
+                                    <option value="TechCorp">TechCorp (High Risk)</option>
+                                    <option value="SafeBond">SafeBond (Low Risk)</option>
+                                    <option value="GreenEnergy">GreenEnergy (Med Risk)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Invest FinCoins</label>
+                                <input type="number" id="invest-amount" value="10">
+                            </div>
+                            <div class="market-actions">
+                                <button class="btn btn-success" onclick="predictMarket('up')">Predict Up</button>
+                                <button class="btn btn-danger" onclick="predictMarket('down')">Predict Down</button>
+                            </div>
+                            <button class="btn btn-text" onclick="resetMarket()">Reset</button>
+                        </div>
+                        <div class="card market-data">
+                            <h3>Market Data</h3>
+                            <div class="data-row">
+                                <span>Current Price:</span>
+                                <span id="market-price">150.00</span>
+                            </div>
+                            <div class="data-row">
+                                <span>Trend:</span>
+                                <div class="trend-bar">
+                                    <div class="trend-fill" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                            <div id="market-result" class="result-box"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mentor Hub Section -->
+                <section id="mentor-hub" class="content-section">
+                    <h2>Mentor Hub</h2>
+                    <div class="chat-container card">
+                        <div class="chat-history" id="chat-history">
+                            <div class="message agent-message">
+                                <div class="msg-bubble">Hello! I'm your FinSense Mentor. Ask me anything about finance!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chat-input" placeholder="Ask a question...">
+                            <button class="btn btn-primary" id="send-chat-btn"><i
+                                    class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Arena Section -->
+                <section id="arena" class="content-section">
+                    <h2>Arena</h2>
+                    <div class="arena-tabs">
+                        <button class="tab-btn active" onclick="switchArenaTab('coop')">Co-op</button>
+                        <button class="tab-btn" onclick="switchArenaTab('versus')">Versus</button>
+                    </div>
+                    <div class="card arena-content">
+                        <div class="room-controls">
+                            <input type="text" placeholder="Room Code">
+                            <button class="btn btn-primary">Create Room</button>
+                            <button class="btn btn-outline">Join Room</button>
+                        </div>
+                        <hr>
+                        <div class="team-status">
+                            <h4>Team Progress</h4>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <p>Waiting for players...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hall of Fame Section -->
+                <section id="hall-of-fame" class="content-section">
+                    <h2>Hall of Fame</h2>
+                    <div class="card leaderboard-card">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>XP</th>
+                                    <th>TrustScore</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><i class="fas fa-crown gold"></i> AlphaWolf</td>
+                                    <td>12000</td>
+                                    <td>98</td>
+                                    <td>USA</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><i class="fas fa-medal silver"></i> BetaBear</td>
+                                    <td>11500</td>
+                                    <td>95</td>
+                                    <td>UK</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><i class="fas fa-medal bronze"></i> GammaGoat</td>
+                                    <td>11000</td>
+                                    <td>92</td>
+                                    <td>India</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3>Your Badges</h3>
+                    <div class="badges-grid">
+                        <div class="card badge-card">
+                            <i class="fas fa-rocket badge-icon"></i>
+                            <h4>Starter</h4>
+                            <p>Joined FinSense</p>
+                        </div>
+                        <div class="card badge-card">
+                            <i class="fas fa-piggy-bank badge-icon"></i>
+                            <h4>Saver</h4>
+                            <p>Saved 100 Coins</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <h2>Settings</h2>
+                    <div class="card settings-card">
+                        <div class="setting-item">
+                            <span>Dark Mode</span>
+                            <label class="switch">
+                                <input type="checkbox" checked disabled> <!-- Always dark for this theme -->
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Email Notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <hr>
+                        <button class="btn btn-danger"
+                            onclick="alert('Account deletion is not implemented yet.')">Delete Account</button>
+                        <p class="small-text">You can delete your account data anytime.</p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Game Modal Placeholder -->
+    <div id="game-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-game-title">Game Title</h2>
+            <div class="game-placeholder-area">
+                <p>Game area placeholder</p>
+                <p>Score: <span id="mock-score">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

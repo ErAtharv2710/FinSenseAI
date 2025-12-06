@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Expense - FinSense</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="auth-section" class="active-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="logo-area">
+                    <i class="fas fa-receipt logo-icon"></i>
+                    <h1>Log Expense</h1>
+                    <p>Track your spending to level up!</p>
+                </div>
+
+                <form action="{{ url_for('log_expense') }}" method="POST" class="auth-form active">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="food">Food</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="transport">Transport</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="bills">Bills</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (FinCoins)</label>
+                        <input type="number" id="amount" name="amount" placeholder="e.g. 500" required min="1">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Log Expense (+50 XP)</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-block"
+                        style="text-align:center; text-decoration:none;">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
