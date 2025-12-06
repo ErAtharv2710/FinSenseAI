@@ -285,12 +285,15 @@
                 <button class="tab-btn active">Play Together</button>
                 <button class="tab-btn">Face a Friend</button>
             </div>
-            <div class="card mt-4">
-                <h3>Create or Join Room</h3>
-                <div class="form-row">
-                    <input type="text" placeholder="Room Code">
-                    <button class="btn btn-primary">Join</button>
-                    <button class="btn btn-outline">Create New</button>
+            <div id="arena-content">
+                <div class="card mt-4">
+                    <h3>Create or Join Room</h3>
+                    <div class="form-row" style="display: flex; gap: 1rem; justify-content: center;">
+                        <input type="text" id="arena-token-input" placeholder="Enter Token"
+                            style="padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: white;">
+                        <button class="btn btn-primary" onclick="arena.joinRoom()">Join</button>
+                        <button class="btn btn-outline" onclick="arena.createRoom()">Create New</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -369,52 +372,34 @@
         <!-- Profile Screen -->
         <section id="profileScreen" class="screen hidden">
             <h2>My Profile</h2>
-            <div class="card profile-card text-center">
-                <img src="https://ui-avatars.com/api/?name=User" class="profile-avatar-lg"
-                    style="width:100px; height:100px; border-radius:50%; border:4px solid var(--primary); margin-bottom:1rem;">
-                <h3>User Name</h3>
-                <p class="text-muted">Level 5 • 1200 XP</p>
-                <div class="badges-grid mt-4" style="display:flex; justify-content:center; gap:1rem;">
-                    <div class="badge" style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px;"><i
-                            class="fas fa-star text-accent fa-2x"></i></div>
-                    <div class="badge" style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px;"><i
-                            class="fas fa-rocket text-primary fa-2x"></i></div>
-                </div>
-            </div>
-        </section>
+            <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    </main>
+            <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/firebase-setup.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/router.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/academy.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/arcade.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/arena.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/hall-of-fame.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/email.js') }}"></script>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/firebase-setup.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/router.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/academy.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/arcade.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/arena.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/hall-of-fame.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/email.js') }}"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            router.init();
-            // Check theme
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-mode');
-                document.getElementById('theme-toggle').checked = false;
-            } else {
-                document.getElementById('theme-toggle').checked = true;
-            }
-        });
-    </script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    router.init();
+                    // Check theme
+                    if (localStorage.getItem('theme') === 'light') {
+                        document.body.classList.add('light-mode');
+                        document.getElementById('theme-toggle').checked = false;
+                    } else {
+                        document.getElementById('theme-toggle').checked = true;
+                    }
+                });
+            </script>
 </body>
 
 </html>

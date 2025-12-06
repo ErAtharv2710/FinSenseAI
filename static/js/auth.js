@@ -69,16 +69,39 @@ const auth = {
             uid: 'user_' + Math.random().toString(36).substr(2, 9)
         };
 
-        // 2. Create Firestore Profile (Mocked here, but structure is ready)
+        // 2. Create Firestore Profile with Full Schema
         const userProfile = {
+            // Basic Info
+            user_id: user.uid,
             username: name,
             email: email,
+            created_at: new Date().toISOString(),
+            last_login: new Date().toISOString(),
+            is_active: true,
+            profile_image_url: `https://ui-avatars.com/api/?name=${name}&background=00C853&color=fff`,
+            financial_literacy_level: 'beginner', // beginner/intermediate/advanced
+
+            // Financial Context
+            currency: 'INR',
+            employment_status: 'student', // student/employed/unemployed/self-employed
+            monthly_income: 0,
+            income_frequency: 'monthly',
+            city: 'Unknown', // Requested field
+            risk_tolerance: 'moderate', // conservative/moderate/aggressive
+
+            // App Specific
             level: 1,
             xp: 0,
             net_worth: 0,
             budget_limit: { food: 5000, entertainment: 2000, savings: 1000 },
-            spending_log: [],
-            joined_at: new Date().toISOString()
+
+            // Sub-collections (simulated as arrays for mock)
+            income_sources: [],
+            expenses: [],
+            savings: [],
+            debts: [],
+            wishlist: [],
+            goals: []
         };
 
         // In real Firebase: db.collection('users').doc(user.uid).set(userProfile)
