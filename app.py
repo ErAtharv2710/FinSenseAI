@@ -3,7 +3,7 @@ from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# --- Flask App Config ---
+# --- Flask App Config ------
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_hackathon_secret_key'
 
