@@ -25,246 +25,264 @@
 <!--</body>-->
 <!--</html>-->
 
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>FinSenseAI – Professional UI</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-    :root {
-        --sidebar-bg: #1f1f23;
-        --sidebar-item: #2a2a2f;
-        --sidebar-hover: #34343a;
-        --main-bg: #fafafa;
-        --bot-bg: #ffffff;
-        --user-bg: #2563eb;
-    }
+    <title>FinSenseAI Coach</title>
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0d1117;
+            height: 100vh;
+            display: flex;
+        }
 
-    body {
-        display: flex;
-        height: 100vh;
-        font-family: 'Inter', sans-serif;
-        background: var(--main-bg);
-    }
+        /* Sidebar */
+        .sidebar {
+            width: 230px;
+            background: #161b22;
+            color: white;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-right: 1px solid #30363d;
+        }
 
-    /* ================= SIDEBAR ================= */
-    #sidebar {
-        width: 240px;
-        background: var(--sidebar-bg);
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        color: white;
-        border-right: 1px solid #2a2a2f;
-    }
+        .sidebar .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
 
-    #new-chat {
-        padding: 10px 12px;
-        border: 1px solid #3a3a41;
-        border-radius: 8px;
-        font-size: 14px;
-        text-align: center;
-        cursor: pointer;
-        margin-bottom: 20px;
-        background: var(--sidebar-item);
-        transition: 0.2s;
-    }
+        .section-title {
+            margin-top: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
 
-    #new-chat:hover {
-        background: var(--sidebar-hover);
-    }
+        .menu-item {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
 
-    #recent-title {
-        font-size: 13px;
-        opacity: 0.7;
-        margin-bottom: 10px;
-    }
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
 
-    .history-item {
-        padding: 10px;
-        background: var(--sidebar-item);
-        border-radius: 6px;
-        font-size: 13px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        transition: background 0.2s;
-    }
+        .menu-item.active {
+            background: #1f6feb;
+        }
 
-    .history-item:hover {
-        background: var(--sidebar-hover);
-    }
+        .sidebar-footer {
+            margin-top: auto;
+            font-size: 12px;
+            opacity: 0.6;
+            text-align: center;
+        }
 
-    /* ================= MAIN AREA ================= */
-    #main {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
+        /* Black Box Chat Container */
+        .app-container {
+            flex: 1;
+            margin: 30px;
+            background: #161b22;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+        }
 
-    /* TOP BAR */
-    #topbar {
-        height: 60px;
-        background: white;
-        border-bottom: 1px solid #e3e3e3;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 20px;
-    }
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #1f6feb, #3a8bff);
+            color: white;
+            padding: 25px 30px;
+        }
 
-    #topbar h1 {
-        font-size: 18px;
-        font-weight: 500;
-    }
+        .app-header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
 
-    #profile {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #d6d6d6;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+        .app-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+        }
 
-    #profile:hover {
-        opacity: 0.8;
-    }
+        /* Chat messages */
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            background: #1b2129;
+        }
 
-    /* MESSAGE PANEL */
-    #messages {
-        flex-grow: 1;
-        padding: 25px;
-        overflow-y: auto;
-    }
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
 
-    .msg {
-        padding: 10px 14px;
-        border-radius: 10px;
-        max-width: 48%;
-        margin-bottom: 12px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
+        .bot {
+            background: #2d333b;
+            border-left: 4px solid #3a8bff;
+            color: white;
+        }
 
-    .bot {
-        background: var(--bot-bg);
-        border: 1px solid #e3e3e3;
-        align-self: flex-start;
-    }
+        .user {
+            background: #238636;
+            border-right: 4px solid #2ea043;
+            margin-left: auto;
+            color: white;
+        }
 
-    .user {
-        background: var(--user-bg);
-        color: white;
-        align-self: flex-end;
-    }
+        /* Input */
+        .input-box {
+            display: flex;
+            padding: 20px;
+            background: #161b22;
+            border-top: 1px solid #30363d;
+        }
 
-    /* INPUT BAR */
-    #input-area {
-        background: white;
-        padding: 15px;
-        border-top: 1px solid #e3e3e3;
-        display: flex;
-        gap: 10px;
-    }
+        .input-box input {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 15px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: white;
+            border-radius: 12px;
+            outline: none;
+            margin-right: 10px;
+        }
 
-    #user-input {
-        flex-grow: 1;
-        padding: 12px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        outline: none;
-        font-size: 14px;
-    }
+        .input-box button {
+            padding: 14px 22px;
+            font-size: 15px;
+            border: none;
+            background: #1f6feb;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-    #send-btn {
-        padding: 12px 20px;
-        background: var(--user-bg);
-        border: none;
-        color: white;
-        border-radius: 10px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+        .input-box button:hover {
+            background: #1158c7;
+        }
 
-    #send-btn:hover {
-        background: #1d4ed8;
-    }
-</style>
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 10px;
+        }
+    </style>
+
 </head>
 
 <body>
 
-<!-- ================= SIDEBAR ================= -->
-<div id="sidebar">
-    <div id="new-chat">+ New Chat</div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">💰 FinSense AI</div>
 
-    <div id="recent-title">Recent Conversations</div>
+        <div class="menu-item active">🏠 Dashboard</div>
 
-    <div class="history-item">How to start SIP?</div>
-    <div class="history-item">Best saving tips</div>
-    <div class="history-item">Improve CIBIL score</div>
-    <div class="history-item">Mutual fund basics</div>
-</div>
+        <div class="section-title">Chats</div>
+        <div class="menu-item">📝 New Chat</div>
+        <div class="menu-item">🕘 Recent Chats</div>
+        <div class="menu-item">📚 History</div>
 
-<!-- ================= MAIN AREA ================= -->
-<div id="main">
+        <div class="section-title">User</div>
+        <div class="menu-item">⚙️ Settings</div>
+        <div class="menu-item">👤 Account</div>
+        <div class="menu-item">⋯ More</div>
 
-    <!-- TOP BAR -->
-    <div id="topbar">
-        <h1>FinSenseAI Coach</h1>
-        <div id="profile"></div>
+        <div class="sidebar-footer">
+            FinSenseAI © 2025
+        </div>
     </div>
 
-    <!-- MESSAGES -->
-    <div id="messages">
-        <div class="msg bot">Hello! I’m Finny, your financial AI coach. Ask me anything!</div>
+    <!-- Chat Window -->
+    <div class="app-container">
+        <div class="app-header">
+            <h1>FinSenseAI Coach</h1>
+            <p>Your smart Indian financial literacy assistant 💡🇮🇳</p>
+        </div>
+
+        <div id="chatBox" class="chat-box">
+            <div class="message bot">
+                Hello! I'm Finny, your financial guide. How can I help you today? 😊
+            </div>
+        </div>
+
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Ask Finny about finance...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
-    <!-- INPUT BAR -->
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="Ask Finny something...">
-        <button id="send-btn">Send</button>
-    </div>
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const chatBox = document.getElementById("chatBox");
 
-</div>
+            const userText = input.value.trim();
+            if (!userText) return;
 
-<script>
-    const messages = document.getElementById("messages");
-    const input = document.getElementById("user-input");
-    const sendBtn = document.getElementById("send-btn");
+            chatBox.innerHTML += `<div class="message user">${userText}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            input.value = "";
 
-    sendBtn.onclick = () => {
-        const text = input.value.trim();
-        if (!text) return;
+            try {
+                const response = await fetch("http://127.0.0.1:5000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userText })
+                });
 
-        // User Message
-        const userMsg = document.createElement("div");
-        userMsg.className = "msg user";
-        userMsg.textContent = text;
-        messages.appendChild(userMsg);
+                const json = await response.json();
 
-        messages.scrollTop = messages.scrollHeight;
-        input.value = "";
+                chatBox.innerHTML += `<div class="message bot">${json.response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
 
-        // Bot Response
-        setTimeout(() => {
-            const botMsg = document.createElement("div");
-            botMsg.className = "msg bot";
-            botMsg.textContent = "Let me think... (connect backend API here)";
-            messages.appendChild(botMsg);
-
-            messages.scrollTop = messages.scrollHeight;
-        }, 600);
-    };
-</script>
+            } catch (e) {
+                chatBox.innerHTML += `<div class="message bot">⚠️ Cannot reach backend</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
 
 </body>
+
 </html>
