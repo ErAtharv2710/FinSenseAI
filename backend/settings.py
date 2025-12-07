@@ -17,7 +17,7 @@ class AppSettings(BaseSettings):
     # --- API KEYS & IDENTIFIERS ---
     # Note: Using hardcoded value for quick testing, but setting it in
     # environment variables or .env file is highly recommended.
-    GEMINI_API_KEY: str = "AIzaSyBfW057JWruBcdUH1tD24rMYbJoRJn3N-E"
+    GEMINI_API_KEY: str = "AIzaSyByTlk7pzNVg0MwJeaXXmx2-oSdOI8Mu6c"
 
     # --- DATABASE CONFIGURATION (MySQL) ---
     MYSQL_USER: str = "root"
