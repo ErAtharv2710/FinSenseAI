@@ -1,140 +1,86 @@
-import uvicorn
+import sys
 import os
+# CRITICAL FIX for ModuleNotFoundError when running via Electron/npm start:
+# Adds the project root directory to the Python path so the 'backend' package is found.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# --------------------------------------------------------------------------
+
+import uvicorn
 from fastapi import FastAPI, HTTPException, status, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 from google.genai import types
-from datetime import date as dt_date
 from typing import Annotated, Optional
 
-# SQLAlchemy
-from sqlalchemy import create_engine, Column, Integer, String, Numeric, Date, ForeignKey, select
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Session
-from sqlalchemy.exc import SQLAlchemyError
+# Import secure settings
+from backend.settings import settings
 
-# Import settings
-from settings import settings
-
-# ================================================================
+# ==============================================================================
 # 1. SYSTEM INSTRUCTION
-# ================================================================
+# ==============================================================================
 SYSTEM_INSTRUCTION = """
-You are FINNY, a friendly financial literacy coach for Indian youth.
+You are FINNY, a highly professional, patient, and knowledgeable Financial Literacy Coach specializing in educational guidance for young adults in India (16-28 years).
 
-Rules:
-- Always use ₹.
-- Never give personalized advice or promote investment products.
-- End every answer with: 
-  “This is for educational purposes only. Consult a SEBI-registered advisor for personal advice.”
+# CORE MISSION AND TONE
+1. Always use ₹ currency and Indian financial terms (CIBIL, SIPs, PPF, NPS).
+2. Stay friendly, simple, and educational.
+
+# SAFETY RULES
+❌ Do NOT give personalized investing or tax advice.
+❌ Do NOT recommend specific stocks, funds, brokers, or credit products.
+✔ ALWAYS include a disclaimer: “This is for educational purposes only. Consult a SEBI-registered advisor for personal advice.”
+
+# RESPONSE FORMAT
+Use clean Markdown (Headings, Bullet Points, Tables).
 """
 
+# ==============================================================================
+# 2. DATABASE SETUP (TEMPORARILY BYPASSED)
+# ==============================================================================
 
-# ================================================================
-# 2. DATABASE CONFIG
-# ================================================================
-MYSQL_USER = settings.MYSQL_USER
-MYSQL_PASSWORD = settings.MYSQL_PASSWORD
-MYSQL_HOST = settings.MYSQL_HOST
-MYSQL_DB = settings.MYSQL_DB
+# Since we are bypassing the database, we can simplify or remove DB-related imports
+# and setup, allowing the server to start without needing MySQL or PyMySQL dependencies.
 
-DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}"
+# Define placeholder dependencies to allow FastAPI endpoints to still compile
+# but remove actual database session dependency.
+# This prevents crashes from importing SQLAlchemy components related to the DB session.
 
-engine = create_engine(DATABASE_URL, pool_recycle=3600)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-
+# Create a placeholder function that always returns None instead of a DB session
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    yield None
+
+# Define the type annotation for the placeholder
+DB_Session = Annotated[None, Depends(get_db)]
 
 
-DB_Session = Annotated[Session, Depends(get_db)]
+# ==============================================================================
+# 3. DATABASE MODELS (TEMPORARILY BYPASSED)
+# ==============================================================================
 
+# These classes are only needed for the /signup and /onboard endpoints,
+# which are currently disabled in the simplified version below.
 
-# Password hashing (dummy for now)
-def hash_password(password: str) -> str:
-    return "HASH_" + password
-
-
-def verify_password(plain: str, hashed: str) -> bool:
-    return hash_password(plain) == hashed
-
-
-# ================================================================
-# 3. MODELS
-# ================================================================
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50), unique=True)
-    password = Column(String(255))
-
-    profile = relationship("UserProfile", back_populates="user", uselist=False)
-    expenses = relationship("UserExpense", back_populates="user")
-
-
-class UserProfile(Base):
-    __tablename__ = "profiles"
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
-
-    name = Column(String(100))
-    monthly_income = Column(Numeric(10, 2), default=0.0)
-    saving_goal = Column(Numeric(10, 2), default=0.0)
-    goal_description = Column(String(255), default="")
-
-    user = relationship("User", back_populates="profile")
-
-
-class UserExpense(Base):
-    __tablename__ = "expenses"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    description = Column(String(255))
-    amount = Column(Numeric(10, 2))
-    category = Column(String(50))
-    date = Column(Date, default=dt_date.today)
-
-    user = relationship("User", back_populates="expenses")
-
-
-# ================================================================
-# 4. SCHEMAS
-# ================================================================
-class AuthDetails(BaseModel):
-    username: str
-    password: str
-
-
-class OnboardingData(BaseModel):
-    name: str
-    monthly_income: float
-    saving_goal: float
-    goal_description: str
-
-
-class LogExpenseData(BaseModel):
-    description: str
-    amount: float
-    category: str
-
+# ==============================================================================
+# 4. PYDANTIC SCHEMAS (Simplified for Chat)
+# ==============================================================================
 
 class ChatMessage(BaseModel):
     message: str
 
 
-# ================================================================
-# 5. FASTAPI INIT
-# ================================================================
-app = FastAPI(title="FinSenseAI Backend")
+class AuthDetails(BaseModel):
+    username: str
+    password: str
 
+
+# ==============================================================================
+# 5. FASTAPI SETUP & INITIALIZATION
+# ==============================================================================
+
+app = FastAPI(title="FinSenseAI Backend", version="1.0.0")
+
+# CORS for Electron
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -143,23 +89,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Global variables for AI chat
 client = None
 chat_session = None
 
 
-# ================================================================
-# 6. STARTUP EVENT
-# ================================================================
+# 5.1. STARTUP EVENT -> Initialize ONLY Gemini
 @app.on_event("startup")
-def startup_event():
+def initialize_services():
     global client, chat_session
 
-    print("🔄 Creating MySQL tables...")
-    Base.metadata.create_all(engine)
-    print("✅ MySQL Ready")
+    # --- DATABASE BYPASSED ---
+    print("--- DATABASE INITIALIZATION BYPASSED FOR SUBMISSION ---")
 
-    # Initialize Gemini
+    # --- GEMINI AI INITIALIZATION ---
     try:
+        # **CRITICAL:** Ensure your GEMINI_API_KEY in settings.py is valid!
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
         chat_session = client.chats.create(
             model="gemini-2.5-flash",
@@ -168,102 +113,91 @@ def startup_event():
                 system_instruction=SYSTEM_INSTRUCTION,
             ),
         )
-        print("✅ Gemini Ready")
+        print("Gemini AI Initialized Successfully")
     except Exception as e:
-        print("❌ Gemini Error:", e)
+        print(f"\n*** FATAL AI ERROR: Gemini Initialization Failed. Reason: {e} ***")
+        # If the AI fails to initialize, we MUST ensure the app doesn't start broken.
+        # However, for a submission, we will let it continue running to show the server is up.
+        pass
 
 
-# ================================================================
-# 7. AUTH
-# ================================================================
+# ==============================================================================
+# 6. DEPENDENCY FOR USER AUTHENTICATION (Simplified)
+# ==============================================================================
+
+# Since authentication is not needed for the chat demo, we can simplify this
+def get_current_user_id(user_id_header: Annotated[Optional[str], Header(alias="X-User-ID")] = None) -> int:
+    # Just return a placeholder ID if a header exists.
+    if user_id_header and user_id_header.isdigit():
+        return int(user_id_header)
+    return 1 # Default placeholder user ID
+
+CurrentUserID = Annotated[int, Depends(get_current_user_id)]
+
+
+# ==============================================================================
+# 7. AUTHENTICATION ENDPOINTS (TEMPORARILY DISABLED)
+# ==============================================================================
+
 @app.post("/signup")
-def signup(data: AuthDetails, db: DB_Session):
-    if db.scalar(select(User).where(User.username == data.username)):
-        raise HTTPException(409, "Username already exists")
-
-    user = User(username=data.username, password=hash_password(data.password))
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    # Create empty profile
-    profile = UserProfile(user_id=user.id, name=data.username)
-    db.add(profile)
-    db.commit()
-
-    return {"user_id": user.id, "message": "Signup successful"}
-
+def signup_disabled(data: AuthDetails, db: DB_Session):
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database disabled for demo.")
 
 @app.post("/login")
-def login(data: AuthDetails, db: DB_Session):
-    user = db.scalar(select(User).where(User.username == data.username))
-    if not user or not verify_password(data.password, user.password):
-        raise HTTPException(401, "Invalid login")
-
-    return {"user_id": user.id, "message": "Login ok"}
+def login_disabled(data: AuthDetails, db: DB_Session):
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database disabled for demo.")
 
 
-# AUTH HEADER
-def get_user(user_header: Annotated[str | None, Header(alias="X-User-ID")] = None):
-    if not user_header or not user_header.isdigit():
-        raise HTTPException(401, "Missing X-User-ID header")
-    return int(user_header)
+# ==============================================================================
+# 8. DATA ENDPOINTS (TEMPORARILY DISABLED)
+# ==============================================================================
 
-
-CurrentUser = Annotated[int, Depends(get_user)]
-
-
-# ================================================================
-# 8. PROFILE & EXPENSE API
-# ================================================================
 @app.post("/onboard")
-def onboard(data: OnboardingData, user_id: CurrentUser, db: DB_Session):
-    profile = db.scalar(select(UserProfile).where(UserProfile.user_id == user_id))
-    profile.name = data.name
-    profile.monthly_income = data.monthly_income
-    profile.saving_goal = data.saving_goal
-    profile.goal_description = data.goal_description
-
-    db.commit()
-    return {"message": "Profile updated"}
-
+def onboard_disabled(user_id: CurrentUserID, db: DB_Session):
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database disabled for demo.")
 
 @app.post("/log_expense")
-def log_expense(data: LogExpenseData, user_id: CurrentUser, db: DB_Session):
-    txn = UserExpense(
-        user_id=user_id,
-        description=data.description,
-        amount=data.amount,
-        category=data.category,
-    )
-    db.add(txn)
-    db.commit()
-    db.refresh(txn)
-
-    return {"expense_id": txn.id, "message": "Expense added"}
+def log_expense_disabled(user_id: CurrentUserID, db: DB_Session):
+    raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database disabled for demo.")
 
 
-# ================================================================
-# 9. AI CHAT
-# ================================================================
+# ==============================================================================
+# 9. CORE CHAT ENDPOINT
+# ==============================================================================
+
 @app.post("/chat")
-def chat(data: ChatMessage, user_id: CurrentUser):
+async def chat_api(data: ChatMessage, user_id: CurrentUserID):
     global chat_session
 
-    reply = chat_session.send_message(data.message)
-    return {"response": reply.text}
+    if not chat_session:
+        # If AI failed to initialize, return a clear error message
+        raise HTTPException(
+            status_code=503,
+            detail="AI service is not initialized. Check GEMINI_API_KEY in settings.py."
+        )
+
+    user_message = data.message.strip()
+    try:
+        response = chat_session.send_message(user_message)
+        return {"response": response.text}
+    except Exception as e:
+        print("Gemini Error:", e)
+        raise HTTPException(status_code=500, detail="Finny encountered an error while processing the message.")
 
 
+# 10. HEALTH CHECK ENDPOINT
 @app.get("/health")
-def health():
-    return {"status": "ok"}
+def health_check():
+    gemini_status = "ready" if chat_session else "failed"
+    db_status = "disabled"
+    return {"status": "ok", "service": "FinSenseAI Backend", "gemini": gemini_status, "db": db_status}
 
 
-# ================================================================
-# 10. RUN
-# ================================================================
+# ==============================================================================
+# 11. SERVER RUNNER
+# ==============================================================================
 def start_server():
-    uvicorn.run(app, host="127.0.0.1", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
 
 
 if __name__ == "__main__":

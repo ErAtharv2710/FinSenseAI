@@ -1,45 +1,57 @@
 # backend/settings.py
 import os
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List, Optional
 
-class Settings(BaseSettings):
-    GEMINI_API_KEY: str
-    MYSQL_USER: str
-    MYSQL_PASSWORD: str
-    MYSQL_HOST: str
-    MYSQL_DB: str
-    CORS_ORIGINS: list = ["http://localhost:3000", "*"]
 
-    class Config:
-        env_file = ".env"
+# ==============================================================================
+# 1. APPLICATION SETTINGS MODEL
+# ==============================================================================
 
-settings = Settings()
+class AppSettings(BaseSettings):
+    """
+    Defines application settings, primarily loading from environment variables
+    or using hardcoded defaults for development.
+    """
 
-# --- 1. GEMINI API KEY ---
-# It's safest to load this from an environment variable (set in your terminal)
-# If you must hardcode it for a quick test, replace os.environ.get(...) with your actual key:
-# Example: GEMINI_API_KEY = "AIzaSy..."
+    # --- API KEYS & IDENTIFIERS ---
+    # Note: Using hardcoded value for quick testing, but setting it in
+    # environment variables or .env file is highly recommended.
+    GEMINI_API_KEY: str = "AIzaSyBfW057JWruBcdUH1tD24rMYbJoRJn3N-E"
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+    # --- DATABASE CONFIGURATION (MySQL) ---
+    MYSQL_USER: str = "root"
+    MYSQL_PASSWORD: str = "The_Phantom_ThIef."
+    MYSQL_HOST: str = "127.0.0.1"
+    MYSQL_DB: str = "finsense_db"
 
-if not GEMINI_API_KEY:
-    print("⚠️ WARNING: GEMINI_API_KEY environment variable not found.")
-    print("Please set it in your terminal before running the server.")
+    # --- CORS (Cross-Origin Resource Sharing) ---
+    # Lists the origins allowed to access the FastAPI backend.
+    # Includes "null" for compatibility with Electron/desktop environments.
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:5000",
+        "http://localhost:5000",
+        "null",
+    ]
 
-# --- 2. CORS (Cross-Origin Resource Sharing) ---
-# Since Electron runs on a custom protocol (usually file:// or localhost)
-# we need to explicitly allow the origins where the frontend will run.
-CORS_ORIGINS = [
-    # The default port for your FastAPI server (even though uvicorn is running it)
-    "http://127.0.0.1:5000",
-    "http://localhost:5000",
+    # --- PYDANTIC V2 CONFIGURATION ---
+    # Tells Pydantic to load variables from a .env file if it exists.
+    # This replaces the old 'class Config:' structure.
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_ignore_empty=True,
+        extra='ignore'  # Ignores extra variables in the environment
+    )
 
-    # Critical: Allow the Electron/file protocol for development
-    "null",
 
-    # If your Electron app runs on a specific port/address (e.g., from a dev server):
-    # "http://localhost:8080",
-]
+# Initialize the settings object
+settings = AppSettings()
 
-# NOTE: In a production web environment, CORS_ORIGINS should only list the
-# domain where your frontend is hosted. For Electron, "null" is often required.
+# ==============================================================================
+# 2. POST-INIT CHECKS
+# ==============================================================================
+
+if not settings.GEMINI_API_KEY:
+    print("⚠️ WARNING: GEMINI_API_KEY is not set.")
+    print("Please set this value in your environment variables or the AppSettings model.")
